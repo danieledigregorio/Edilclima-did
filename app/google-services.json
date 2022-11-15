@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "237718875664",
+    "project_id": "edilclima-did",
+    "storage_bucket": "edilclima-did.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:237718875664:android:b289139798d748f376a495",
+        "android_client_info": {
+          "package_name": "it.polito.did.edilclima"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "237718875664-diof1qapt6oljhp7c0s8q64nrfjntkof.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDdnzeOl4K0kUy8kt4rZ95A_q3YjFwdP2k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "237718875664-diof1qapt6oljhp7c0s8q64nrfjntkof.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
