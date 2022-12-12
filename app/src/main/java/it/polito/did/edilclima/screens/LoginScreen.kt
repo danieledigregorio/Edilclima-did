@@ -1,60 +1,151 @@
 package it.polito.did.edilclima.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
-import it.polito.did.edilclima.navigation.NavGraph
+import it.polito.did.edilclima.R
 import it.polito.did.edilclima.navigation.Screens
-import java.util.*
+import it.polito.did.edilclima.ui.theme.Black
+import it.polito.did.edilclima.ui.theme.Green2
+import it.polito.did.edilclima.ui.theme.Shapes
+import it.polito.did.edilclima.ui.theme.White1
 
 @Composable
-fun LoginScreen(navController: NavController) {
-    var gamevalue : String by remember { mutableStateOf("") }
-    var nome : String by remember { mutableStateOf("") }
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+fun LoginScreen(
+    navController: NavController,
+    onWriteDB: (String, String) -> Unit
+) {
+    val maxChar = 4
+    var gamecode : String by remember {
+        mutableStateOf("")
+    }
+    var gamername : String by remember {
+        mutableStateOf("")
+    }
+    var focus1 : Boolean by remember {
+        mutableStateOf(false)
+    }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(White1)
     ) {
-        Text("Edilclima", style = MaterialTheme.typography.h3)
-        TextField(
-            value = gamevalue,
-            onValueChange = {
-                    e -> gamevalue = e
-            },
-            placeholder = { Text("Codice Partita")}
-        )
-        TextField(
-            value = nome,
-            onValueChange = {
-                    e -> nome = e
-            },
-            placeholder = { Text("Nome")}
-        )
-        Button(onClick = {
-            val firebase = Firebase.database("https://edilclima-did-default-rtdb.europe-west1.firebasedatabase.app")
-            val refDB = firebase.getReference(gamevalue)
-            refDB.child("users").child(UUID.randomUUID().toString()).setValue(mapOf(
-                "nome" to nome,
-                "id" to "10000",
-            ))
-
-            navController.navigate(Screens.Home.route)
-        }) {
-            Text("LOGIN")
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(15.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxHeight(0.4F),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.logo_edilclima),
+                    contentDescription = "Logo EDILCLIMA",
+                )
+            }
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp)
+            ) {
+                TextField(
+                    value = gamecode,
+                    onValueChange = {
+                        if(it.length<=maxChar) gamecode = it
+                    },
+                    label = { Text(
+                        text = if(focus1) {
+                            "Codice partita ${gamecode.length}/$maxChar"
+                        } else {
+                            "Codice partita"
+                        },
+                        color = Black,
+                    )},
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(color = White1)
+                        .border(2.dp, Green2, Shapes.small)
+                        .onFocusChanged {
+                            focus1 = it.isFocused
+                        },
+                    colors = TextFieldDefaults.textFieldColors(
+                        textColor = Black,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent
+                    )
+                )
+                Divider(
+                    Modifier.height(12.dp)
+                )
+                TextField(
+                    value = gamername,
+                    onValueChange = {
+                        gamername = it
+                    },
+                    label = { Text(
+                        text = "Il tuo nome",
+                        color = Black,
+                    )},
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(color = White1)
+                        .border(2.dp, Green2, Shapes.small),
+                    colors = TextFieldDefaults.textFieldColors(
+                        textColor = Black,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent
+                    )
+                )
+                Divider(
+                    Modifier.height(12.dp)
+                )
+                Button(
+                    onClick = {
+                        onWriteDB(gamecode, gamername)
+                        navController.navigate(Screens.Home.route)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    enabled = gamecode.length==maxChar && gamername!="",
+                ) {
+                    Text(
+                        text = "Accedi",
+                        modifier = Modifier
+                            .padding(8.dp),
+                        color = White1,
+                    )
+                }
+            }
+            Row {
+                Image(
+                    painter = painterResource(R.drawable.logo_polito),
+                    contentDescription = "Logo POLITO",
+                    alpha = 0.75F,
+                    modifier = Modifier
+                        .size(100.dp)
+                )
+            }
         }
     }
 }
