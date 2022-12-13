@@ -123,7 +123,7 @@ fun LoginScreen(
                 Button(
                     onClick = {
                         onWriteDB(gamecode, gamername)
-                        navController.navigate(Screens.Home.route)
+                        navController.navigate(Screens.WaitingRoom.route)
                     },
                     modifier = Modifier
                         .fillMaxWidth(),

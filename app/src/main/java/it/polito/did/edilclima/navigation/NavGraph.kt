@@ -8,16 +8,21 @@ import androidx.navigation.compose.composable
 import it.polito.did.edilclima.GameViewModel
 import it.polito.did.edilclima.screens.HomeScreen
 import it.polito.did.edilclima.screens.LoginScreen
+import it.polito.did.edilclima.screens.WaitingRoomScreen
+import androidx.compose.runtime.livedata.observeAsState
 
 @Composable
 fun NavGraph(navController: NavHostController) {
     val vm: GameViewModel = viewModel()
     NavHost(
         navController = navController,
-        startDestination = Screens.Login.route,
+        startDestination = Screens.WaitingRoom.route,
     ) {
         composable(route = Screens.Login.route) {
             LoginScreen(navController, vm::onWriteDB)
+        }
+        composable(route = Screens.WaitingRoom.route) {
+            WaitingRoomScreen(navController)
         }
         composable(route = Screens.Home.route) {
             HomeScreen(navController)
