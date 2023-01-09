@@ -6,8 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.ui.Modifier
-import androidx.navigation.compose.rememberNavController
-import it.polito.did.edilclima.navigation.NavGraph
+import it.polito.did.edilclima.navigation.ScreensRouter
 import it.polito.did.edilclima.ui.theme.*
 
 class MainActivity : ComponentActivity() {
@@ -19,8 +18,11 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
+                    ScreensRouter()
+                    /*
                     val navController = rememberNavController()
                     NavGraph(navController = navController)
+                     */
                 }
             }
         }

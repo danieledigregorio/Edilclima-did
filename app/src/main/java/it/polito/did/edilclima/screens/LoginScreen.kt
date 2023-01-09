@@ -14,18 +14,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import it.polito.did.edilclima.R
-import it.polito.did.edilclima.navigation.Screens
-import it.polito.did.edilclima.ui.theme.Black
-import it.polito.did.edilclima.ui.theme.Green2
-import it.polito.did.edilclima.ui.theme.Shapes
-import it.polito.did.edilclima.ui.theme.White1
+import it.polito.did.edilclima.ui.theme.*
 
 @Composable
 fun LoginScreen(
-    navController: NavController,
-    onWriteDB: (String, String) -> Unit
+    onJoinGame: (String, String) -> Unit
 ) {
     val maxChar = 4
     var gamecode : String by remember {
@@ -40,7 +34,6 @@ fun LoginScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(White1)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -77,25 +70,34 @@ fun LoginScreen(
                         } else {
                             "Codice partita"
                         },
-                        color = Black,
+                        color = White1,
                     )},
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(R.drawable.icon_joystick),
+                            contentDescription = "Icon Joystick",
+                            tint = White1
+                        )
+                    },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(color = White1)
-                        .border(2.dp, Green2, Shapes.small)
+                        .border(2.dp, White1, Shapes.small)
                         .onFocusChanged {
                             focus1 = it.isFocused
                         },
                     colors = TextFieldDefaults.textFieldColors(
-                        textColor = Black,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        disabledIndicatorColor = Color.Transparent
-                    )
+                        textColor = White1,
+                        focusedIndicatorColor = Black,
+                        unfocusedIndicatorColor = Black,
+                        disabledIndicatorColor = Black,
+                        backgroundColor = Transparent,
+                    ),
+                    textStyle = LocalTextStyle.current.copy(color = White1)
                 )
                 Divider(
-                    Modifier.height(12.dp)
+                    Modifier.height(12.dp),
+                    color = Transparent
                 )
                 TextField(
                     value = gamername,
@@ -104,36 +106,45 @@ fun LoginScreen(
                     },
                     label = { Text(
                         text = "Il tuo nome",
-                        color = Black,
+                        color = White1,
                     )},
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(R.drawable.icon_user),
+                            contentDescription = "Icon User",
+                            tint = White1
+                        )
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(color = White1)
-                        .border(2.dp, Green2, Shapes.small),
+                        .border(2.dp, White1, Shapes.small),
                     colors = TextFieldDefaults.textFieldColors(
-                        textColor = Black,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        disabledIndicatorColor = Color.Transparent
-                    )
+                        textColor = White1,
+                        focusedIndicatorColor = Black,
+                        unfocusedIndicatorColor = Black,
+                        disabledIndicatorColor = Black,
+                        backgroundColor = Transparent,
+                    ),
+                    textStyle = LocalTextStyle.current.copy(color = White1)
                 )
                 Divider(
-                    Modifier.height(12.dp)
+                    Modifier.height(12.dp),
+                    color = Transparent
                 )
                 Button(
                     onClick = {
-                        onWriteDB(gamecode, gamername)
-                        navController.navigate(Screens.WaitingRoom.route)
+                        onJoinGame(gamecode, gamername)
                     },
                     modifier = Modifier
                         .fillMaxWidth(),
                     enabled = gamecode.length==maxChar && gamername!="",
+                    colors = ButtonDefaults.buttonColors(backgroundColor = White1, disabledBackgroundColor = Gray1)
                 ) {
                     Text(
                         text = "Accedi",
                         modifier = Modifier
                             .padding(8.dp),
-                        color = White1,
+                        color = Black,
                     )
                 }
             }
@@ -141,9 +152,9 @@ fun LoginScreen(
                 Image(
                     painter = painterResource(R.drawable.logo_polito),
                     contentDescription = "Logo POLITO",
-                    alpha = 0.75F,
+                    alpha = 0.5F,
                     modifier = Modifier
-                        .size(100.dp)
+                        .size(100.dp),
                 )
             }
         }

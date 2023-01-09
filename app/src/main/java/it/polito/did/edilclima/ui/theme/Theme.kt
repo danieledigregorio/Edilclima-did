@@ -8,15 +8,17 @@ import androidx.compose.runtime.Composable
 import it.polito.did.edilclima.Typography
 
 private val DarkColorPalette = darkColors(
-    primary = Green2,
-    primaryVariant = Green1,
-    secondary = Orange1
+    primary = White1,
+    primaryVariant = White1,
+    secondary = White1,
+    background = Black,
 )
 
 private val LightColorPalette = lightColors(
-    primary = Green2,
-    primaryVariant = Green1,
-    secondary = Orange1
+    primary = White1,
+    primaryVariant = White1,
+    secondary = White1,
+    background = Black,
 
     /* Other default colors to override
     background = Color.White,

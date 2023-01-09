@@ -8,6 +8,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import it.polito.did.edilclima.ui.theme.Black
+import it.polito.did.edilclima.ui.theme.White1
 
 // Set of Material typography styles to start with
 val poppinsFamily = FontFamily(
@@ -33,54 +34,51 @@ val poppinsFamily = FontFamily(
 val Typography = Typography(
     body1 = TextStyle(
         fontFamily = poppinsFamily,
-        color = Black,
+        color = White1,
     ),
     body2 = TextStyle(
         fontFamily = poppinsFamily,
-        color = Black,
+        color = White1,
     ),
     h1 = TextStyle(
         fontFamily = poppinsFamily,
         fontSize = 24.sp,
         fontWeight = FontWeight.Bold,
-        color = Black,
+        color = White1,
     ),
     h2 = TextStyle(
         fontFamily = poppinsFamily,
         fontSize = 20.sp,
         fontWeight = FontWeight.Bold,
-        color = Black,
+        color = White1,
     ),
     h3 = TextStyle(
         fontFamily = poppinsFamily,
-        color = Black,
+        color = White1,
     ),
     h4 = TextStyle(
         fontFamily = poppinsFamily,
-        color = Black,
+        color = White1,
     ),
     h5 = TextStyle(
         fontFamily = poppinsFamily,
-        color = Black,
+        color = White1,
     ),
     h6 = TextStyle(
         fontFamily = poppinsFamily,
-        color = Black,
+        color = White1,
     ),
     button = TextStyle(
         fontFamily = poppinsFamily,
     ),
     caption = TextStyle(
         fontFamily = poppinsFamily,
-        color = Black,
     ),
     subtitle1 = TextStyle(
         fontFamily = poppinsFamily,
-        color = Black,
     ),
     subtitle2 = TextStyle(
         fontFamily = poppinsFamily,
-        color = Black,
     ),
     overline = TextStyle(
         fontFamily = poppinsFamily,

@@ -15,27 +15,25 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.rememberLottieComposition
 import it.polito.did.edilclima.Typography
 import it.polito.did.edilclima.ui.theme.Black
+import it.polito.did.edilclima.ui.theme.Transparent
 import it.polito.did.edilclima.ui.theme.White1
 
 @Composable
 fun WaitingRoomScreen(
-    navController: NavController,
+    gamecode: String,
 ) {
-    val infiniteTransition = rememberInfiniteTransition()
-    val angle by infiniteTransition.animateFloat(
-        initialValue = 0F,
-        targetValue = 360F,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1250, easing = LinearEasing)
-        )
-    )
+    val composition by rememberLottieComposition(spec = LottieCompositionSpec.Url("https://assets4.lottiefiles.com/packages/lf20_Fo4x1KH8Aq.json"))
+
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(White1)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -56,23 +54,22 @@ fun WaitingRoomScreen(
                     style = Typography.body2,
                 )
                 Text(
-                    text = "8888",
+                    text = gamecode,
                     style = Typography.h2,
                 )
             }
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Icon(
-                    painter = painterResource(it.polito.did.edilclima.R.drawable.spinner_solid),
-                    contentDescription = "Loading",
+                LottieAnimation(
+                    composition = composition,
+                    iterations = LottieConstants.IterateForever,
                     modifier = Modifier
-                        .size(30.dp)
-                        .rotate(angle),
-                    tint = Black,
+                        .size(65.dp),
                 )
                 Divider(
-                    modifier = Modifier.height(16.dp)
+                    Modifier.height(20.dp),
+                    color = Transparent
                 )
                 Text(
                     text = "Stai per essere collegato alla partita desiderata.\nRimani in questa schermata.",
