@@ -17,7 +17,8 @@ import it.polito.did.edilclima.ui.theme.White1
 
 @Composable
 fun GroupAssigned(
-    onStartGame: () -> Unit
+    onStartGame: () -> Unit,
+    teamCode: String
 ) {
     Box(
         modifier = Modifier
@@ -31,12 +32,12 @@ fun GroupAssigned(
                 .padding(15.dp)
         ) {
             Text(
-                text = "Sei stato assegnato al",
+                text = "Sei stato assegnato alla",
                 style = Typography.body2,
                 textAlign = TextAlign.Center
             )
             Text(
-                text = "Gruppo 1",
+                text = "Squadra $teamCode",
                 style = Typography.h1,
             )
             Divider(

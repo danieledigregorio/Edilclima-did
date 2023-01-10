@@ -25,7 +25,7 @@ val azioni = arrayOf(
         options = arrayOf(
             Opzione(
                 id = "1",
-                title = "Scopa",
+                title = "\uD83E\uDDF9 Scopa",
                 subtitle = "Lorem ipsum dolor sit amet lorem ipsum dolor sit amet",
                 co2 = 100,
                 price = 5,

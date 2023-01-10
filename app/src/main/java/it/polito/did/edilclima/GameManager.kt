@@ -1,5 +1,6 @@
 package it.polito.did.edilclima
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.auth.ktx.auth
@@ -30,6 +31,12 @@ class GameManager(private val scope:CoroutineScope) {
     private val mutableGamecode = MutableLiveData<String>()
     val gamecode: LiveData<String> = mutableGamecode
 
+    private val mutableUID = MutableLiveData<String>()
+    val uid: LiveData<String> = mutableUID
+
+    private val mutableTeamcode = MutableLiveData<String>()
+    val teamcode: LiveData<String> = mutableTeamcode
+
     private val mutableEdit = MutableLiveData<String>()
     val edit: LiveData<String> = mutableEdit
 
@@ -43,6 +50,7 @@ class GameManager(private val scope:CoroutineScope) {
                     if(status!=null) {
                         firebaseAuth.signInAnonymously().await()
                         val uid = firebaseAuth.uid!!
+                        mutableUID.value = uid
                         refDB.child("users").child(uid).setValue(mapOf(
                             "name" to name,
                             "id" to uid,
@@ -70,7 +78,9 @@ class GameManager(private val scope:CoroutineScope) {
                 refDB.addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         val v = snapshot.value
-                        if(v=="game") mutableScreenName.value = Screens.GroupAssigned
+                        if(v=="game") {
+                            setTeamcode()
+                        }
                     }
                     override fun onCancelled(error: DatabaseError) {
                         // ERR
@@ -82,8 +92,54 @@ class GameManager(private val scope:CoroutineScope) {
         }
     }
 
+    fun setTeamcode() {
+        scope.launch {
+            try {
+                val refDB = firebaseDB.getReference(gamecode.value!!).child("gruppi")
+                val data = refDB.get().await().value
+                if(data!=null) {
+                    val res: List<Group> = Gson().fromJson(Gson().toJson(data), Array<Group>::class.java).toList()
+                    res.forEach {
+                        if(it.users.contains(mutableUID.value)) {
+                            mutableTeamcode.value = it.idGroup
+                            mutableScreenName.value = Screens.GroupAssigned(mutableTeamcode.value!!)
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                // ERR
+            }
+        }
+    }
+
     fun startGame() {
-        mutableScreenName.value = Screens.Home(gamecode.value!!)
+        mutableScreenName.value = Screens.Home(gamecode.value!!, teamcode.value!!)
+        listenImprevisti()
+    }
+
+    private fun listenImprevisti() {
+        scope.launch {
+            try {
+                val refDB = firebaseDB.getReference(gamecode.value!!).child("imprevisti")
+                refDB.addValueEventListener(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        val v = snapshot.value
+                        if(v!=null) {
+                            mutableScreenName.value = Screens.Imprevisto()
+                        }
+                    }
+                    override fun onCancelled(error: DatabaseError) {
+                        // ERR
+                    }
+                })
+            } catch (e: Exception) {
+                // ERR
+            }
+        }
+    }
+
+    fun closeImprevisto() {
+        mutableScreenName.value = Screens.Home(gamecode.value!!, teamcode.value!!)
     }
 
     fun addEdit(gamecode: String, idEdit: String, idChoice: String, idGroup: String) {
@@ -109,21 +165,12 @@ class GameManager(private val scope:CoroutineScope) {
                 refDB.addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         val res = Gson().fromJson(Gson().toJson(snapshot.value), Edit::class.java)
-                        mutableEdit.value = res.idChoice
+                        mutableEdit.value = res?.idChoice
                     }
                     override fun onCancelled(error: DatabaseError) {
                         // ERR
                     }
                 })
-                /*
-                val data = refDB.get().await().value
-                if(data!=null) {
-                    Log.d("edit", "code: $gamecode")
-                    val res = Gson().fromJson(Gson().toJson(data), Edit::class.java)
-                    mutableEdit.value = res
-                    Log.d("edit", "AAA $res")
-                }
-                 */
             } catch (e: Exception) {
                 // ERR
             }
@@ -131,4 +178,6 @@ class GameManager(private val scope:CoroutineScope) {
     }
 
     data class Edit(var idEdit: String, var idChoice: String, var idGroup: String) {}
+    data class Group(var idGroup: String, var users: List<String>) {}
+    data class Imprevisto(var id: String) {}
 }

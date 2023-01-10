@@ -8,6 +8,7 @@ import it.polito.did.edilclima.screens.WaitingRoomScreen
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.navigation.compose.rememberNavController
 import it.polito.did.edilclima.screens.GroupAssigned
+import it.polito.did.edilclima.screens.ImprevistoScreen
 
 @Composable
 fun ScreensRouter() {
@@ -22,7 +23,8 @@ fun ScreensRouter() {
             screenName.gamecode,
         )
         is Screens.GroupAssigned -> GroupAssigned(
-            vm::onStartGame
+            vm::onStartGame,
+            screenName.teamcode
         )
         is Screens.Home -> {
             val navController = rememberNavController()
@@ -30,8 +32,12 @@ fun ScreensRouter() {
                 navController = navController,
                 edit = edit,
                 gameCode = screenName.gamecode,
+                teamCode = screenName.teamcode,
             )
         }
+        is Screens.Imprevisto -> ImprevistoScreen(
+            vm::onCloseImprevisto
+        )
         null -> LoginScreen(vm::onJoinGame)
     }
 }

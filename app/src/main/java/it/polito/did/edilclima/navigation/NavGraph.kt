@@ -15,7 +15,8 @@ import it.polito.did.edilclima.screens.*
 fun NavGraph(
     navController: NavHostController,
     edit: State<String?>,
-    gameCode: String
+    gameCode: String,
+    teamCode: String
 ) {
     val vm: GameViewModel = viewModel()
 
@@ -24,7 +25,10 @@ fun NavGraph(
         startDestination = ScreensGame.GameMain.route,
     ) {
         composable(route = ScreensGame.GameMain.route){
-            GamePalazzo(navController)
+            GamePalazzo(
+                navController,
+                teamCode
+            )
         }
         composable(route = ScreensGame.GameHome.route){
             Column() {
@@ -66,7 +70,7 @@ fun NavGraph(
             val id = navController.currentBackStackEntry?.arguments?.getString("id").toString()
             backButton(navController = navController)
             if(id!="null") {
-                GameModifica(gameCode, navController, id, vm::onGetEdit, edit)
+                GameModifica(gameCode, navController, id, vm::onGetEdit, edit, vm::onAddEdit, teamCode)
             }
         }
     }

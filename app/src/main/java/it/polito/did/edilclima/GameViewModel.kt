@@ -10,6 +10,7 @@ class GameViewModel: ViewModel() {
     fun onStartGame() = gameManager.startGame()
     fun onAddEdit(gamecode: String, idEdit: String, idChoice: String, idGroup: String) = gameManager.addEdit(gamecode, idEdit, idChoice, idGroup)
     fun onGetEdit(gamecode: String, idEdit: String, idGroup: String) = gameManager.getEdit(gamecode, idEdit, idGroup)
+    fun onCloseImprevisto() = gameManager.closeImprevisto()
 
     val screenName = gameManager.screenName
     val gamecode = gameManager.gamecode
