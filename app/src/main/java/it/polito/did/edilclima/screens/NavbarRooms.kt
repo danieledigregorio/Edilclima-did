@@ -1,36 +1,91 @@
 package it.polito.did.edilclima.navigation
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.Divider
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import androidx.navigation.NavController
+import it.polito.did.edilclima.GameManager
 import it.polito.did.edilclima.R
 import it.polito.did.edilclima.Typography
 import it.polito.did.edilclima.ui.theme.Black
+import it.polito.did.edilclima.ui.theme.Gray1
 import it.polito.did.edilclima.ui.theme.Transparent
 import it.polito.did.edilclima.ui.theme.White1
+import kotlinx.coroutines.delay
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
+import java.util.*
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun NavbarRooms(navController: NavController) {
+fun NavbarRooms(
+    navController: NavController,
+    turno: State<GameManager.Turno?>,
+    users: State<List<GameManager.User>?>,
+    uid: State<String?>,
+    groupStats: State<GameManager.Group?>,
+) {
+    var countdown by remember {
+        mutableStateOf(1.0F)
+    }
+    LaunchedEffect(key1 = countdown) {
+        val refreshtime : Float = 1000F
+        val turnduration : Float = 180F
+        delay(refreshtime.toLong())
+        if(countdown>0F) {
+            countdown -= (1F/turnduration)*(refreshtime/1000F)
+        } else {
+            countdown = 1F
+        }
+    }
+
+    var popupControl by remember {
+        mutableStateOf(false)
+    }
+
     val scrollstate = rememberScrollState()
+
+    // TIME CALCs
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+    val dataturno : LocalDateTime = LocalDateTime.parse(turno.value!!.data.replaceFirst(' ', 'T')).plusSeconds(180)
+    val datanow : LocalDateTime = LocalDateTime.now()
+
+    val difference : Long = ChronoUnit.SECONDS.between(datanow, dataturno)
+
+    // TURNO CALCs
+    val index = groupStats.value!!.users.indexOf(turno.value!!.user.id)
+    val before = groupStats.value!!.users.filter { groupStats.value!!.users.indexOf(it)<index }
+    val after = groupStats.value!!.users.filter { groupStats.value!!.users.indexOf(it)>index }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
     ) {
-        Column() {
+        Column {
+            if(turno.value!!.user.id==uid.value) {
+                LinearProgressIndicator(
+                    modifier = Modifier.fillMaxWidth(),
+                    progress = (difference.toFloat()/180),//countdown,
+                    color = if ((difference.toFloat()/180)<0.2F) Color.Red else if((difference.toFloat()/180)<0.4F) Color.Yellow else Color.Green
+                )
+            }
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -46,6 +101,34 @@ fun NavbarRooms(navController: NavController) {
                         .size(30.dp)
                         .clickable { navController.navigate(ScreensGame.GameMain.route) }
                 )
+                if(turno.value!!.user.id==uid.value) {
+                    Card(
+                        backgroundColor = if ((difference.toFloat()/180)<0.2F) Color.Red else if((difference.toFloat()/180)<0.4F) Color.Yellow else Color.Green,
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier
+                            .clickable { popupControl = true },
+                    ) {
+                        Text(
+                            text = "È il tuo turno!",
+                            color = if ((difference.toFloat()/180)<0.2F) White1 else if((difference.toFloat()/180)<0.4F) Black else Black,
+                            modifier = Modifier.padding(10.dp, 3.dp, 10.dp, 0.dp),
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                } else {
+                    Card(
+                        backgroundColor = Gray1,
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier
+                            .clickable { popupControl = true },
+                    ) {
+                        Text(
+                            text = "È il turno di ${turno.value!!.user.name}",
+                            color = Black,
+                            modifier = Modifier.padding(10.dp, 3.dp, 10.dp, 0.dp)
+                        )
+                    }
+                }
                 Icon(
                     painter = painterResource(R.drawable.icon_info),
                     contentDescription = "Icona Info",
@@ -108,10 +191,9 @@ fun NavbarRooms(navController: NavController) {
                 }
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     Text(
-                        text = "2:05",
+                        text = "${(if(difference/60>=0)difference / 60 else 0).toString().split(".")[0]}:${(if(difference%60>=0) difference%60 else 0).toString().padStart(2,'0')}",
                         style = Typography.body2
                     )
                 }
@@ -173,6 +255,97 @@ fun NavbarRooms(navController: NavController) {
                 Modifier.height(20.dp),
                 color = Transparent
             )
+        }
+        if(popupControl) {
+            Popup(
+                alignment = Alignment.Center,
+                onDismissRequest = { popupControl = false },
+                properties = PopupProperties(
+                    focusable = true,
+                    dismissOnBackPress = true,
+                ),
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Black.copy(alpha = 0.85F))
+                        .clickable { popupControl = false },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth(0.9F)
+                            .fillMaxHeight(0.5F)
+                            .clickable { popupControl = true }
+                            .padding(10.dp),
+                        shape = RoundedCornerShape(20.dp),
+                        backgroundColor = White1
+                    ) {
+                        Column(
+                            verticalArrangement = Arrangement.SpaceEvenly,
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Column(
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                            ) {
+                                if(turno.value!!.user.id==uid.value) {
+                                    Text(
+                                        text = "È il tuo turno!",
+                                        color = Black,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 20.sp,
+                                        textAlign = TextAlign.Center,
+                                    )
+                                    Text(
+                                        text = "Fai la tua mossa! Ti rimane poco tempo!",
+                                        color = Black,
+                                        textAlign = TextAlign.Center,
+                                    )
+                                } else {
+                                    Text(
+                                        text = "È il turno di ${turno.value!!.user.name}!",
+                                        color = Black,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 20.sp,
+                                        textAlign = TextAlign.Center,
+                                    )
+                                    Text(
+                                        text = "Aspetta il tuo turno. Nel frattempo puoi navigare nella casa per preparare la tua prossima mossa!",
+                                        color = Black,
+                                        textAlign = TextAlign.Center,
+                                    )
+                                }
+                            }
+                            Column(
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                            ) {
+                                Text(
+                                    text = "Turni successivi:",
+                                    color = Black,
+                                )
+                                after.map { u ->
+                                    Text(
+                                        text = users.value!!.first { it.id==u }.name,
+                                        color = Black,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 16.sp,
+                                    )
+                                }
+                                before.map { u ->
+                                    Text(
+                                        text = users.value!!.first { it.id==u }.name,
+                                        color = Black,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 16.sp,
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

@@ -1,6 +1,8 @@
 package it.polito.did.edilclima.screens
 
 import android.util.Log
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -9,12 +11,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import androidx.lifecycle.LiveData
 import androidx.navigation.NavController
 import it.polito.did.edilclima.R
@@ -38,6 +44,11 @@ fun GameModifica(
     val (selected, setSelected) = remember {
         mutableStateOf("")
     }
+
+    var popupControl by remember {
+        mutableStateOf(false)
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -192,7 +203,7 @@ fun GameModifica(
                     )
                 }
                 Button(
-                    onClick = { onAddEdit(gameCode, id, selected, teamCode) },
+                    onClick = { popupControl=true },
                     modifier = Modifier
                         .width(150.dp),
                     colors = ButtonDefaults.buttonColors(
@@ -201,11 +212,65 @@ fun GameModifica(
                     enabled = selected!="" && edit.value!=selected
                 ) {
                     Text(
-                        text = "Conferma",
+                        text = "Seleziona",
                         color = Black,
                         modifier = Modifier
                             .padding(8.dp),
                     )
+                }
+            }
+        }
+        if(popupControl) {
+            Popup(
+                alignment = Alignment.Center,
+                onDismissRequest = { popupControl = false },
+                properties = PopupProperties(
+                    focusable = true,
+                    dismissOnBackPress = true,
+                )
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Black.copy(alpha = 0.85F))
+                        .clickable { popupControl = false },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth(0.9F)
+                            .fillMaxHeight(0.5F)
+                            .clickable { popupControl = true },
+                        shape = RoundedCornerShape(20.dp),
+                        backgroundColor = White1
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.SpaceEvenly,
+                        ) {
+                            Text(
+                                text = "SICUROOO????",
+                                color = Black,
+                            )
+                            Divider(thickness = 20.dp, color = Transparent)
+                            Button(
+                                onClick = { onAddEdit(gameCode, id, selected, teamCode) },
+                                modifier = Modifier
+                                    .width(150.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    backgroundColor = Black, disabledBackgroundColor = Gray2,
+                                ),
+                                enabled = selected!="" && edit.value!=selected
+                            ) {
+                                Text(
+                                    text = "Conferma",
+                                    color = White1,
+                                    modifier = Modifier
+                                        .padding(8.dp),
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }

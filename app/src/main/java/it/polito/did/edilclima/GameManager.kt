@@ -10,9 +10,12 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
+import com.google.gson.JsonObject
+import com.google.gson.reflect.TypeToken
 import it.polito.did.edilclima.navigation.Screens
 import kotlinx.coroutines.*
 import kotlinx.coroutines.tasks.await
+import org.json.JSONObject
 import java.lang.reflect.Type
 import java.util.*
 import kotlin.collections.ArrayList
@@ -39,6 +42,15 @@ class GameManager(private val scope:CoroutineScope) {
 
     private val mutableEdit = MutableLiveData<String>()
     val edit: LiveData<String> = mutableEdit
+
+    private val mutableGroupStats = MutableLiveData<Group>()
+    val groupStats: LiveData<Group> = mutableGroupStats
+
+    private val mutableTurno = MutableLiveData<Turno>()
+    val turno: LiveData<Turno> = mutableTurno
+
+    private val mutableUsers = MutableLiveData<List<User>>()
+    val users: LiveData<List<User>> = mutableUsers
 
     fun joinGame(gamecode:String, name:String) {
         scope.launch {
@@ -101,6 +113,7 @@ class GameManager(private val scope:CoroutineScope) {
                     val res: List<Group> = Gson().fromJson(Gson().toJson(data), Array<Group>::class.java).toList()
                     res.forEach {
                         if(it.users.contains(mutableUID.value)) {
+                            getUsers()
                             mutableTeamcode.value = it.idGroup
                             mutableScreenName.value = Screens.GroupAssigned(mutableTeamcode.value!!)
                         }
@@ -110,6 +123,60 @@ class GameManager(private val scope:CoroutineScope) {
                 // ERR
             }
         }
+    }
+
+    fun getUsers() {
+        scope.launch {
+            try {
+                val refDB1 = firebaseDB.getReference(gamecode.value!!).child("users")
+                val data1 = refDB1.get().await().value
+                if(data1!=null) {
+                    val itemtype = object : TypeToken<Map<String, User>>(){}.type
+                    val map1 = Gson().fromJson<Map<String, User>>(Gson().toJson(data1), itemtype)
+                    val res1 : MutableList<User> = mutableListOf()
+                    map1.keys.map { map1[it]?.let { it1 -> res1.add(it1) } }
+                    mutableUsers.value = res1
+                    listenGroupStats()
+                }
+            } catch (e: Exception) {
+                // ERR
+            }
+        }
+    }
+
+    fun listenGroupStats() {
+        scope.launch {
+            try {
+                val refDB = firebaseDB.getReference(gamecode.value!!).child("gruppi")
+                refDB.addValueEventListener(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        val data = snapshot.value
+                        if(data!=null) {
+                            val res: List<Group> = Gson().fromJson(Gson().toJson(data), Array<Group>::class.java).toList()
+                            mutableGroupStats.value = res.first { it.idGroup == teamcode.value!! }
+                            getLastTurn()
+                        }
+                    }
+                    override fun onCancelled(error: DatabaseError) {
+                        // ERR
+                    }
+                })
+            } catch (e: Exception) {
+                // ERR
+            }
+        }
+    }
+
+    fun getLastTurn() {
+        val numturn = mutableGroupStats.value!!.turni.size
+        val lasttime = mutableGroupStats.value!!.turni.last()
+        val users = mutableGroupStats.value!!.users
+
+        val indexuser = numturn%users.size
+        val userid = mutableGroupStats.value!!.users.get(indexuser)
+        val username = mutableUsers.value!!.first { it.id==userid }
+
+        mutableTurno.value = Turno(lasttime, username)
     }
 
     fun startGame() {
@@ -178,6 +245,8 @@ class GameManager(private val scope:CoroutineScope) {
     }
 
     data class Edit(var idEdit: String, var idChoice: String, var idGroup: String) {}
-    data class Group(var idGroup: String, var users: List<String>) {}
+    data class Group(var idGroup: String, var soldi: Number, var activities: List<Edit>, var turni: List<String>, var users: List<String>) {}
     data class Imprevisto(var id: String) {}
+    data class Turno(var data: String, var user: User) {}
+    data class User(var id: String, var name: String) {}
 }

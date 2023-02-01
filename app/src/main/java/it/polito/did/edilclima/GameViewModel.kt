@@ -15,4 +15,8 @@ class GameViewModel: ViewModel() {
     val screenName = gameManager.screenName
     val gamecode = gameManager.gamecode
     val edit = gameManager.edit
+    val turno = gameManager.turno
+    val users = gameManager.users
+    val uid = gameManager.uid
+    val groupStats = gameManager.groupStats
 }

@@ -7,19 +7,22 @@ import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.rememberLottieComposition
 import it.polito.did.edilclima.navigation.ScreensGame
 import it.polito.did.edilclima.ui.theme.White1
 import it.polito.did.edilclima.R
 import it.polito.did.edilclima.Typography
-import it.polito.did.edilclima.ui.theme.Black
 import it.polito.did.edilclima.ui.theme.Transparent
 
 @Composable
@@ -27,8 +30,7 @@ fun GamePalazzo(
     navController: NavController,
     teamCode: String
 ) {
-
-
+    val composition by rememberLottieComposition(spec = LottieCompositionSpec.Url("https://assets8.lottiefiles.com/packages/lf20_paGW5dv4sm.json"))
 
     Box(
         modifier = Modifier
@@ -99,35 +101,102 @@ fun GamePalazzo(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Image(
-                    painter = painterResource(R.drawable.palazzo_g4),
-                    contentDescription = "Palazzo g4",
+                Box(
                     modifier = Modifier
-                        .width(550.dp)
-                        .clickable { navController.navigate(ScreensGame.GameHome.route) }
-                )
-                Image(
-                    painter = painterResource(R.drawable.palazzo_g3),
-                    contentDescription = "Palazzo g3",
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.palazzo_g4),
+                        contentDescription = "Palazzo g4",
+                        modifier = Modifier
+                            .width(550.dp)
+                            .clickable { if (teamCode == "4") navController.navigate(ScreensGame.GameHome.route) },
+                        alpha = if(teamCode=="4") 1F else 0.6F,
+                    )
+                    if(teamCode=="4") {
+                        LottieAnimation(
+                            composition = composition,
+                            iterations = LottieConstants.IterateForever,
+                            modifier = Modifier
+                                .size(100.dp)
+                                .rotate(-45F)
+                                .offset(30.dp, 30.dp),
+                        )
+                    }
+                }
+                Box(
                     modifier = Modifier
-                        .width(550.dp)
-                        .clickable { navController.navigate(ScreensGame.GameHome.route) }
-                )
-                Image(
-                    painter = painterResource(R.drawable.palazzo_g2),
-                    contentDescription = "Palazzo g2",
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.palazzo_g3),
+                        contentDescription = "Palazzo g3",
+                        modifier = Modifier
+                            .width(550.dp)
+                            .clickable { if (teamCode == "3") navController.navigate(ScreensGame.GameHome.route) },
+                        alpha = if(teamCode=="3") 1F else 0.5F
+                    )
+                    if(teamCode=="3") {
+                        LottieAnimation(
+                            composition = composition,
+                            iterations = LottieConstants.IterateForever,
+                            modifier = Modifier
+                                .size(100.dp)
+                                .rotate(-45F)
+                                .offset(30.dp, 30.dp),
+                        )
+                    }
+                }
+                Box(
                     modifier = Modifier
-                        .width(550.dp)
-                        .clickable { navController.navigate(ScreensGame.GameHome.route) }
-                )
-                Image(
-                    painter = painterResource(R.drawable.palazzo_g1),
-                    contentDescription = "Palazzo g1",
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.palazzo_g2),
+                        contentDescription = "Palazzo g2",
+                        modifier = Modifier
+                            .width(550.dp)
+                            .clickable { if (teamCode == "2") navController.navigate(ScreensGame.GameHome.route) },
+                        alpha = if(teamCode=="2") 1F else 0.5F
+                    )
+                    if(teamCode=="2") {
+                        LottieAnimation(
+                            composition = composition,
+                            iterations = LottieConstants.IterateForever,
+                            modifier = Modifier
+                                .size(100.dp)
+                                .rotate(-45F)
+                                .offset(30.dp, 30.dp),
+                        )
+                    }
+                }
+                Box(
                     modifier = Modifier
-                        .width(550.dp)
-                        .clickable { navController.navigate(ScreensGame.GameHome.route) },
-                    colorFilter = ColorFilter.tint(Black, blendMode = BlendMode.Overlay)
-                )
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.palazzo_g1),
+                        contentDescription = "Palazzo g1",
+                        modifier = Modifier
+                            .width(550.dp)
+                            .clickable { if (teamCode == "1") navController.navigate(ScreensGame.GameHome.route) },
+                        alpha = if(teamCode=="1") 1F else 0.5F
+                    )
+                    if(teamCode=="1") {
+                        LottieAnimation(
+                            composition = composition,
+                            iterations = LottieConstants.IterateForever,
+                            modifier = Modifier
+                                .size(100.dp)
+                                .rotate(-45F)
+                                .offset(30.dp, 30.dp),
+                        )
+                    }
+                }
             }
         }
     }

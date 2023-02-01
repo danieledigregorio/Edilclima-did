@@ -1,22 +1,29 @@
 package it.polito.did.edilclima.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import it.polito.did.edilclima.GameManager
 import it.polito.did.edilclima.GameViewModel
 import it.polito.did.edilclima.screens.*
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NavGraph(
     navController: NavHostController,
     edit: State<String?>,
     gameCode: String,
-    teamCode: String
+    teamCode: String,
+    turno: State<GameManager.Turno?>,
+    users: State<List<GameManager.User>?>,
+    uid: State<String?>,
+    groupStats: State<GameManager.Group?>
 ) {
     val vm: GameViewModel = viewModel()
 
@@ -32,37 +39,37 @@ fun NavGraph(
         }
         composable(route = ScreensGame.GameHome.route){
             Column() {
-                NavbarRooms(navController)
+                NavbarRooms(navController, turno, users, uid, groupStats)
                 GameHome(navController)
             }
         }
         composable(route = ScreensGame.GameSoggiorno.route){
             Column() {
-                NavbarRooms(navController)
+                NavbarRooms(navController, turno, users, uid, groupStats)
                 GameSoggiorno(navController)
             }
         }
         composable(route = ScreensGame.GameBagno.route){
             Column() {
-                NavbarRooms(navController)
+                NavbarRooms(navController, turno, users, uid, groupStats)
                 GameBagno(navController)
             }
         }
         composable(route = ScreensGame.GameCucina.route){
             Column() {
-                NavbarRooms(navController)
+                NavbarRooms(navController, turno, users, uid, groupStats)
                 GameCucina(navController)
             }
         }
         composable(route = ScreensGame.GameCamera.route){
             Column() {
-                NavbarRooms(navController)
+                NavbarRooms(navController, turno, users, uid, groupStats)
                 GameCamera(navController)
             }
         }
         composable(route = ScreensGame.GameBalcone.route){
             Column() {
-                NavbarRooms(navController)
+                NavbarRooms(navController, turno, users, uid, groupStats)
                 GameBalcone(navController)
             }
         }

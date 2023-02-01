@@ -28,11 +28,7 @@ fun GameHome(navController: NavController) {
         modifier = Modifier
             .fillMaxSize()
     ) {
-        Column(
-            verticalArrangement = Arrangement.SpaceEvenly,
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
+        Column {
             Row( // IMG AMBIENTE
                 modifier = Modifier
                     .fillMaxWidth()
@@ -43,6 +39,10 @@ fun GameHome(navController: NavController) {
                     contentDescription = "Img Casa"
                 )
             }
+            Divider(
+                Modifier.height(40.dp),
+                color = Transparent
+            )
             Row( // MENU MODIFICHE
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceEvenly,
