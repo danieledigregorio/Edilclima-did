@@ -219,7 +219,7 @@ class GameManager(private val scope:CoroutineScope) {
                     "idChoice" to idChoice,
                 )).await()
             } catch (e: Exception) {
-                // ERRa
+                // ERR
             }
         }
     }
