@@ -10,6 +10,7 @@ import it.polito.did.edilclima.screens.WaitingRoomScreen
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.navigation.compose.rememberNavController
 import it.polito.did.edilclima.navigation.tutorial.NavGraphTutorial
+import it.polito.did.edilclima.screens.Classifica
 import it.polito.did.edilclima.screens.ImprevistoScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -23,6 +24,7 @@ fun ScreensRouter() {
     val activities = vm.activities.observeAsState()
     val imprevisti = vm.imprevisti.observeAsState()
     val stats = vm.stats.observeAsState()
+    val classifica = vm.classifica.observeAsState()
 
     when (val screenName = vm.screenName.observeAsState().value) {
         is Screens.Login -> LoginScreen(
@@ -57,6 +59,7 @@ fun ScreensRouter() {
             vm::onCloseImprevisto,
             imprevisti,
         )
+        is Screens.Classifica -> Classifica(vm::onRestartGame, classifica, group.value!!.idGroup)
         null -> LoginScreen(vm::onJoinGame)
     }
 }

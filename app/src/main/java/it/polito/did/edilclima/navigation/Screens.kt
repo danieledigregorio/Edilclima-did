@@ -9,4 +9,5 @@ sealed class Screens() {
     class GroupAssigned(val teamcode: String) : Screens()
     class Home(val gamecode: String, val teamcode: String): Screens()
     class Imprevisto(): Screens()
+    class Classifica(): Screens()
 }

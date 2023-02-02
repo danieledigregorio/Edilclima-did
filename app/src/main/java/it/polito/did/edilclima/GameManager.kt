@@ -3,9 +3,6 @@ package it.polito.did.edilclima
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.auth.ktx.auth
@@ -15,20 +12,14 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
-import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
 import it.polito.did.edilclima.navigation.Screens
-import it.polito.did.edilclima.screens.azioni
-import it.polito.did.edilclima.screens.getAzioneById
 import it.polito.did.edilclima.screens.getAzioni
 import kotlinx.coroutines.*
 import kotlinx.coroutines.tasks.await
-import org.json.JSONObject
-import java.lang.reflect.Type
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 class GameManager(private val scope:CoroutineScope) {
@@ -77,6 +68,9 @@ class GameManager(private val scope:CoroutineScope) {
     private val mutableStats = MutableLiveData<Stats>()
     val stats: LiveData<Stats> = mutableStats
 
+    private val mutableClassifica = MutableLiveData<List<ClassificaItem>>()
+    val classifica: LiveData<List<ClassificaItem>> = mutableClassifica
+
     fun joinGame(gamecode:String, name:String) {
         scope.launch {
             try {
@@ -118,6 +112,8 @@ class GameManager(private val scope:CoroutineScope) {
                         val v = snapshot.value
                         if(v=="game") {
                             setTeamcode()
+                        } else if(v=="finished") {
+                            getClassifica()
                         }
                     }
                     override fun onCancelled(error: DatabaseError) {
@@ -367,6 +363,33 @@ class GameManager(private val scope:CoroutineScope) {
         )
     }
 
+    fun restartGame() {
+        mutableScreenName.value = Screens.Login
+    }
+
+    fun getClassifica() {
+        scope.launch {
+            try {
+                val refDB = firebaseDB.getReference(mutableGamecode.value!!).child("classifica")
+                refDB.addValueEventListener(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        if(snapshot.value!=null) {
+                            val itemtype = object : TypeToken<List<ClassificaItem>>(){}.type
+                            val res = Gson().fromJson<List<ClassificaItem>>(Gson().toJson(snapshot.value), itemtype)
+                            mutableClassifica.value = res
+                            mutableScreenName.value = Screens.Classifica()
+                        }
+                    }
+                    override fun onCancelled(error: DatabaseError) {
+                        // ERR
+                    }
+                })
+            } catch (e: Exception) {
+                // ERR
+            }
+        }
+    }
+
 
 
     data class Edit(var idGroup: String, var idEdit: String, var idChoice: String, var date: String) {}
@@ -376,4 +399,5 @@ class GameManager(private val scope:CoroutineScope) {
     data class TurnoDB(var idGroup: String, var date: String) {}
     data class User(var id: String, var name: String) {}
     data class Stats(var co2: Number, var soldi: Number, var quality: Number, var classeenergetica: String)
+    data class ClassificaItem(var position: String, var idGroup: String)
 }

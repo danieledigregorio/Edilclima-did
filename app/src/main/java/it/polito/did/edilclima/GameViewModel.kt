@@ -13,6 +13,7 @@ class GameViewModel: ViewModel() {
     fun onCloseImprevisto() = gameManager.closeImprevisto()
     @RequiresApi(Build.VERSION_CODES.O)
     fun onAddActivity(idEdit: String, idChoice: String) = gameManager.addActivity(idEdit, idChoice)
+    fun onRestartGame() = gameManager.restartGame()
 
     val screenName = gameManager.screenName
     val turno = gameManager.turno
@@ -22,4 +23,5 @@ class GameViewModel: ViewModel() {
     val activities = gameManager.activities
     val imprevisti = gameManager.imprevisti
     val stats = gameManager.stats
+    val classifica = gameManager.classifica
 }
