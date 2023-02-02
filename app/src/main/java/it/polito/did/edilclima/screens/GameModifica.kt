@@ -1,8 +1,6 @@
 package it.polito.did.edilclima.screens
 
-import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -11,38 +9,45 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
-import androidx.lifecycle.LiveData
 import androidx.navigation.NavController
+import it.polito.did.edilclima.GameManager
 import it.polito.did.edilclima.R
 import it.polito.did.edilclima.Typography
 import it.polito.did.edilclima.ui.theme.*
 
 @Composable
 fun GameModifica(
-    gameCode: String,
     navController: NavController,
     id: String,
-    onGameEdit: (String, String, String) -> Unit,
-    edit: State<String?>,
-    onAddEdit: (String, String, String, String) -> Unit,
-    teamCode: String
+    onAddActivity: (String, String) -> Unit,
+    activities: State<List<GameManager.Edit>?>,
+    turno: State<GameManager.Turno?>,
+    uid: State<String?>,
+    stats: State<GameManager.Stats?>
 ) {
-    onGameEdit(gameCode, id, teamCode)
 
     val azione = getAzioneById(id)
 
+    var edit : GameManager.Edit by remember {
+        mutableStateOf(GameManager.Edit("0", id, azione.options.first { it.default }.id, "0"))
+    }
+    if(activities.value!=null) {
+        activities.value!!.filter { it.idEdit==id }.map {
+            if(it.date>edit.date) edit=it
+        }
+    }
+
     val (selected, setSelected) = remember {
-        mutableStateOf("")
+        mutableStateOf(edit.idChoice)
     }
 
     var popupControl by remember {
@@ -84,12 +89,12 @@ fun GameModifica(
                         horizontalArrangement = Arrangement.Start,
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
-                            .clickable { if(edit.value!=a.id) setSelected(a.id) }
+                            .clickable { if(edit.idChoice!=a.id) setSelected(a.id) }
                     ) {
                         RadioButton(
                             selected = selected==a.id,
                             onClick = { setSelected(a.id) },
-                            enabled = edit.value!=a.id
+                            enabled = edit.idChoice!=a.id
                         )
                         Column(
                             modifier = Modifier
@@ -105,7 +110,7 @@ fun GameModifica(
                                     fontWeight = FontWeight.SemiBold,
                                     fontSize = 20.sp,
                                 )
-                                if(edit.value==a.id) {
+                                if(edit.idChoice==a.id) {
                                     Divider(
                                         modifier = Modifier.width(10.dp),
                                         color = Transparent
@@ -152,7 +157,7 @@ fun GameModifica(
                                 modifier = Modifier.width(10.dp),
                                 color = Color.Transparent
                             )
-                            Text(text = "10 kg")
+                            Text(text = "${a.co2} kg")
                         }
                         Divider(
                             modifier = Modifier.width(20.dp),
@@ -168,7 +173,7 @@ fun GameModifica(
                                 modifier = Modifier.width(10.dp),
                                 color = Color.Transparent
                             )
-                            Text(text = "5,00 €")
+                            Text(text = "${a.price},00 €")
                         }
                     }
                     Divider(
@@ -209,7 +214,7 @@ fun GameModifica(
                     colors = ButtonDefaults.buttonColors(
                         backgroundColor = White1, disabledBackgroundColor = Gray2,
                     ),
-                    enabled = selected!="" && edit.value!=selected
+                    enabled = selected!="" && edit.idChoice!=selected
                 ) {
                     Text(
                         text = "Seleziona",
@@ -253,20 +258,47 @@ fun GameModifica(
                                 color = Black,
                             )
                             Divider(thickness = 20.dp, color = Transparent)
-                            Button(
-                                onClick = { onAddEdit(gameCode, id, selected, teamCode) },
-                                modifier = Modifier
-                                    .width(150.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    backgroundColor = Black, disabledBackgroundColor = Gray2,
-                                ),
-                                enabled = selected!="" && edit.value!=selected
-                            ) {
+                            if(turno.value!!.user.id==uid.value) {
+                                if(stats.value!!.soldi.toInt()>=azione.options.first { it.id==selected }.price) {
+                                    Button(
+                                        onClick = {
+                                            onAddActivity(id, selected);
+                                            popupControl = false
+                                        },
+                                        modifier = Modifier
+                                            .width(150.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            backgroundColor = Black, disabledBackgroundColor = Gray2,
+                                        ),
+                                        enabled = selected!="" && edit.idChoice!=selected
+                                    ) {
+                                        Text(
+                                            text = "Conferma",
+                                            color = White1,
+                                            modifier = Modifier
+                                                .padding(8.dp),
+                                        )
+                                    }
+                                } else {
+                                    Text(
+                                        text = "Saldo insufficiente",
+                                        color = Black,
+                                        modifier = Modifier
+                                            .padding(8.dp),
+                                        fontWeight = FontWeight.Bold,
+                                        fontStyle = FontStyle.Italic,
+                                        textAlign = TextAlign.Center,
+                                    )
+                                }
+                            } else {
                                 Text(
-                                    text = "Conferma",
-                                    color = White1,
+                                    text = "Aspetta il tuo turno per confermare l'acquisto!",
+                                    color = Black,
                                     modifier = Modifier
                                         .padding(8.dp),
+                                    fontWeight = FontWeight.Bold,
+                                    fontStyle = FontStyle.Italic,
+                                    textAlign = TextAlign.Center,
                                 )
                             }
                         }

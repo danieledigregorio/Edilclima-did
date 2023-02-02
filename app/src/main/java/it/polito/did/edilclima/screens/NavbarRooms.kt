@@ -1,7 +1,6 @@
 package it.polito.did.edilclima.navigation
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -40,7 +39,8 @@ fun NavbarRooms(
     turno: State<GameManager.Turno?>,
     users: State<List<GameManager.User>?>,
     uid: State<String?>,
-    groupStats: State<GameManager.Group?>,
+    group: State<GameManager.Group?>,
+    stats: State<GameManager.Stats?>
 ) {
     var countdown by remember {
         mutableStateOf(1.0F)
@@ -70,9 +70,18 @@ fun NavbarRooms(
     val difference : Long = ChronoUnit.SECONDS.between(datanow, dataturno)
 
     // TURNO CALCs
-    val index = groupStats.value!!.users.indexOf(turno.value!!.user.id)
-    val before = groupStats.value!!.users.filter { groupStats.value!!.users.indexOf(it)<index }
-    val after = groupStats.value!!.users.filter { groupStats.value!!.users.indexOf(it)>index }
+    val index = group.value!!.users.indexOf(turno.value!!.user.id)
+    val before = group.value!!.users.filter { group.value!!.users.indexOf(it)<index }
+    val after = group.value!!.users.filter { group.value!!.users.indexOf(it)>index }
+
+    val imgclasse = when (stats.value?.classeenergetica) {
+        "a" -> R.drawable.a
+        "b" -> R.drawable.b
+        "c" -> R.drawable.c
+        "d" -> R.drawable.d
+        "e" -> R.drawable.e
+        else -> R.drawable.f
+    }
 
     Box(
         modifier = Modifier
@@ -158,7 +167,7 @@ fun NavbarRooms(
                         color = Transparent
                     )
                     Text(
-                        text = "29 kg",
+                        text = "${stats.value?.co2} kg",
                         style = Typography.body2
                     )
                     Divider(
@@ -166,7 +175,7 @@ fun NavbarRooms(
                         color = Transparent
                     )
                     Image(
-                        painter = painterResource(R.drawable.f),
+                        painter = painterResource(imgclasse),
                         contentDescription = "Classe energetica",
                         modifier = Modifier.size(20.dp)
                     )
@@ -185,7 +194,7 @@ fun NavbarRooms(
                         color = Transparent
                     )
                     Text(
-                        text = "3000,00 €",
+                        text = "${stats.value?.soldi},00 €",
                         style = Typography.body2
                     )
                 }

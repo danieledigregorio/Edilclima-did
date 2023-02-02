@@ -1,6 +1,11 @@
 package it.polito.did.edilclima
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.auth.ktx.auth
@@ -13,10 +18,15 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
 import it.polito.did.edilclima.navigation.Screens
+import it.polito.did.edilclima.screens.azioni
+import it.polito.did.edilclima.screens.getAzioneById
+import it.polito.did.edilclima.screens.getAzioni
 import kotlinx.coroutines.*
 import kotlinx.coroutines.tasks.await
 import org.json.JSONObject
 import java.lang.reflect.Type
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -40,17 +50,32 @@ class GameManager(private val scope:CoroutineScope) {
     private val mutableTeamcode = MutableLiveData<String>()
     val teamcode: LiveData<String> = mutableTeamcode
 
-    private val mutableEdit = MutableLiveData<String>()
-    val edit: LiveData<String> = mutableEdit
+    private val mutableActivities = MutableLiveData<List<Edit>>()
+    val activities: LiveData<List<Edit>> = mutableActivities
 
-    private val mutableGroupStats = MutableLiveData<Group>()
-    val groupStats: LiveData<Group> = mutableGroupStats
+    private val mutableGroups = MutableLiveData<List<Group>>()
+    val groups: LiveData<List<Group>> = mutableGroups
+
+    private val mutableGroup = MutableLiveData<Group>()
+    val group: LiveData<Group> = mutableGroup
+
+    private val mutableTurni = MutableLiveData<List<TurnoDB>>()
+    val turni: LiveData<List<TurnoDB>> = mutableTurni
 
     private val mutableTurno = MutableLiveData<Turno>()
     val turno: LiveData<Turno> = mutableTurno
 
     private val mutableUsers = MutableLiveData<List<User>>()
     val users: LiveData<List<User>> = mutableUsers
+
+    private val mutableImprevisti = MutableLiveData<List<Imprevisto>>()
+    val imprevisti: LiveData<List<Imprevisto>> = mutableImprevisti
+
+    private val mutableImprevisto = MutableLiveData<Imprevisto>()
+    val imprevisto: LiveData<Imprevisto> = mutableImprevisto
+
+    private val mutableStats = MutableLiveData<Stats>()
+    val stats: LiveData<Stats> = mutableStats
 
     fun joinGame(gamecode:String, name:String) {
         scope.launch {
@@ -88,6 +113,7 @@ class GameManager(private val scope:CoroutineScope) {
             try {
                 val refDB = firebaseDB.getReference(gamecode).child("status")
                 refDB.addValueEventListener(object : ValueEventListener {
+                    @RequiresApi(Build.VERSION_CODES.O)
                     override fun onDataChange(snapshot: DataSnapshot) {
                         val v = snapshot.value
                         if(v=="game") {
@@ -113,8 +139,12 @@ class GameManager(private val scope:CoroutineScope) {
                     val res: List<Group> = Gson().fromJson(Gson().toJson(data), Array<Group>::class.java).toList()
                     res.forEach {
                         if(it.users.contains(mutableUID.value)) {
-                            getUsers()
                             mutableTeamcode.value = it.idGroup
+                            getUsers()
+                            getGroups()
+                            listenActivities()
+                            listenTurni()
+                            calcStats()
                             mutableScreenName.value = Screens.GroupAssigned(mutableTeamcode.value!!)
                         }
                     }
@@ -136,7 +166,6 @@ class GameManager(private val scope:CoroutineScope) {
                     val res1 : MutableList<User> = mutableListOf()
                     map1.keys.map { map1[it]?.let { it1 -> res1.add(it1) } }
                     mutableUsers.value = res1
-                    listenGroupStats()
                 }
             } catch (e: Exception) {
                 // ERR
@@ -144,16 +173,35 @@ class GameManager(private val scope:CoroutineScope) {
         }
     }
 
-    fun listenGroupStats() {
+    fun getGroups() {
         scope.launch {
             try {
-                val refDB = firebaseDB.getReference(gamecode.value!!).child("gruppi")
+                val refDB1 = firebaseDB.getReference(gamecode.value!!).child("gruppi")
+                val data = refDB1.get().await().value
+                if(data!=null) {
+                    val res: List<Group> = Gson().fromJson(Gson().toJson(data), Array<Group>::class.java).toList()
+                    mutableGroups.value = res
+                    mutableGroup.value = res.first { it.idGroup == mutableTeamcode.value }
+                }
+            } catch (e: Exception) {
+                // ERR
+            }
+        }
+    }
+
+    fun listenTurni() {
+        scope.launch {
+            try {
+                val refDB = firebaseDB.getReference(gamecode.value!!).child("turni")
                 refDB.addValueEventListener(object : ValueEventListener {
+                    @RequiresApi(Build.VERSION_CODES.O)
                     override fun onDataChange(snapshot: DataSnapshot) {
-                        val data = snapshot.value
-                        if(data!=null) {
-                            val res: List<Group> = Gson().fromJson(Gson().toJson(data), Array<Group>::class.java).toList()
-                            mutableGroupStats.value = res.first { it.idGroup == teamcode.value!! }
+                        if(snapshot.value!=null) {
+
+                            val itemtype = object : TypeToken<List<TurnoDB>>(){}.type
+                            val res = Gson().fromJson<List<TurnoDB>>(Gson().toJson(snapshot.value), itemtype)
+
+                            mutableTurni.value = res
                             getLastTurn()
                         }
                     }
@@ -167,13 +215,17 @@ class GameManager(private val scope:CoroutineScope) {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun getLastTurn() {
-        val numturn = mutableGroupStats.value!!.turni.size
-        val lasttime = mutableGroupStats.value!!.turni.last()
-        val users = mutableGroupStats.value!!.users
+        val turnigruppo = mutableTurni.value!!.filter { it.idGroup==mutableTeamcode.value }
+        val numturno = turnigruppo.size
+        val usersgroup = mutableGroups.value!!.first { it.idGroup == mutableTeamcode.value }.users
+        var lasttime : String = "1950-01-01 12:00:00"
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        turnigruppo.map { if(LocalDateTime.parse(it.date, formatter).isAfter(LocalDateTime.parse(lasttime, formatter))) lasttime=it.date }
 
-        val indexuser = numturn%users.size
-        val userid = mutableGroupStats.value!!.users.get(indexuser)
+        val indexuser = numturno%usersgroup.size
+        val userid = usersgroup[indexuser]
         val username = mutableUsers.value!!.first { it.id==userid }
 
         mutableTurno.value = Turno(lasttime, username)
@@ -190,8 +242,10 @@ class GameManager(private val scope:CoroutineScope) {
                 val refDB = firebaseDB.getReference(gamecode.value!!).child("imprevisti")
                 refDB.addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
-                        val v = snapshot.value
-                        if(v!=null) {
+                        if(snapshot.value!=null) {
+                            val itemtype = object : TypeToken<List<Imprevisto>>(){}.type
+                            val res = Gson().fromJson<List<Imprevisto>>(Gson().toJson(snapshot.value), itemtype)
+                            mutableImprevisti.value = res
                             mutableScreenName.value = Screens.Imprevisto()
                         }
                     }
@@ -209,30 +263,47 @@ class GameManager(private val scope:CoroutineScope) {
         mutableScreenName.value = Screens.Home(gamecode.value!!, teamcode.value!!)
     }
 
-    fun addEdit(gamecode: String, idEdit: String, idChoice: String, idGroup: String) {
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun addActivity(idEdit: String, idChoice: String) {
         scope.launch {
             try {
-                val refDB = firebaseDB.getReference(gamecode)
-                refDB.child("edits").child("G${idGroup}-E${idEdit}").setValue(mapOf(
-                    "idGroup" to idGroup,
+                val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+                val date : String = LocalDateTime.now().format(formatter)
+                val refDB = firebaseDB.getReference(mutableGamecode.value!!)
+                refDB.child("activities").child("G${mutableTeamcode.value!!}-E${idEdit}-D${date}").setValue(mapOf(
+                    "idGroup" to mutableTeamcode.value!!,
                     "idEdit" to idEdit,
                     "idChoice" to idChoice,
+                    "date" to date,
                 )).await()
+
+                val formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                val date2 : String = LocalDateTime.now().format(formatter2)
+                refDB.child("turni").child(mutableTurni.value!!.size.toString()).setValue(mapOf(
+                    "idGroup" to mutableTeamcode.value!!,
+                    "date" to date2,
+                )).await()
+
             } catch (e: Exception) {
                 // ERR
             }
         }
     }
 
-
-    fun getEdit(gamecode: String, idEdit: String, idGroup: String) {
+    fun listenActivities() {
         scope.launch {
             try {
-                val refDB = firebaseDB.getReference(gamecode).child("edits").child("G${idGroup}-E${idEdit}")
+                val refDB = firebaseDB.getReference(mutableGamecode.value!!).child("activities")
                 refDB.addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
-                        val res = Gson().fromJson(Gson().toJson(snapshot.value), Edit::class.java)
-                        mutableEdit.value = res?.idChoice
+                        if(snapshot.value!=null) {
+                            val itemtype = object : TypeToken<Map<String, Edit>>(){}.type
+                            val map = Gson().fromJson<Map<String, Edit>>(Gson().toJson(snapshot.value), itemtype)
+                            val res : MutableList<Edit> = mutableListOf()
+                            map.keys.map { map[it]?.let { it1 -> res.add(it1) } }
+                            mutableActivities.value = res.filter { it.idGroup==mutableTeamcode.value }
+                            calcStats()
+                        }
                     }
                     override fun onCancelled(error: DatabaseError) {
                         // ERR
@@ -244,9 +315,65 @@ class GameManager(private val scope:CoroutineScope) {
         }
     }
 
-    data class Edit(var idEdit: String, var idChoice: String, var idGroup: String) {}
-    data class Group(var idGroup: String, var soldi: Number, var activities: List<Edit>, var turni: List<String>, var users: List<String>) {}
-    data class Imprevisto(var id: String) {}
+    fun calcStats() {
+        var co2: Int = 0
+        var soldi: Int = 3000
+        var quality: Int = 0
+        var classeenergetica: String = "f"
+
+        if(mutableActivities.value!=null) {
+            val azioni = getAzioni()
+            azioni.map { a ->
+                Log.d("gamemanager", "AZIONE ID: ${a.id}")
+                // CO2, PRICE
+                val listact = mutableActivities.value!!.filter { it.idEdit==a.id }
+                Log.d("gamemanager", "LIST AZIONI UTENTE: $listact")
+                listact.map { e ->
+                    Log.d("gamemanager", "AZIONE UTENTE: $e")
+                    val choice = a.options.first { it.id==e.idChoice }
+                    co2 += choice.co2
+                    soldi -= choice.price
+                    Log.d("gamemanager", "X: ${choice.price}")
+                }
+
+                // QUALITY
+                if(listact.isNotEmpty()) {
+                    var lastdate = "19500101120000"
+                    listact.map { if(it.date.toLong()>=lastdate.toLong()) lastdate=it.date }
+                    val idChoice = listact.first { it.date==lastdate }.idChoice
+                    quality += a.options.first { it.id==idChoice }.quality
+                } else {
+                    quality += a.options.first { it.default }.quality
+                }
+
+                classeenergetica =
+                    if(co2 in 0..9) "f"
+                    else if(co2 in 10..19) "e"
+                    else if(co2 in 20..29) "d"
+                    else if(co2 in 30..39) "c"
+                    else if(co2 in 40..49) "b"
+                    else if(co2 > 50) "a"
+                    else "f"
+
+                Log.d("gamemanager", "B: $co2 $soldi $quality $classeenergetica")
+            }
+        }
+
+        mutableStats.value = Stats(
+            co2 = co2,
+            soldi = soldi,
+            quality = quality,
+            classeenergetica = classeenergetica
+        )
+    }
+
+
+
+    data class Edit(var idGroup: String, var idEdit: String, var idChoice: String, var date: String) {}
+    data class Group(var idGroup: String, var users: List<String>) {}
+    data class Imprevisto(var id: String, var date: String) {}
     data class Turno(var data: String, var user: User) {}
+    data class TurnoDB(var idGroup: String, var date: String) {}
     data class User(var id: String, var name: String) {}
+    data class Stats(var co2: Number, var soldi: Number, var quality: Number, var classeenergetica: String)
 }

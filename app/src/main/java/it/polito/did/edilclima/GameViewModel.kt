@@ -1,5 +1,7 @@
 package it.polito.did.edilclima
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 
@@ -8,15 +10,16 @@ class GameViewModel: ViewModel() {
 
     fun onJoinGame(gamecode:String, name:String) = gameManager.joinGame(gamecode, name)
     fun onStartGame() = gameManager.startGame()
-    fun onAddEdit(gamecode: String, idEdit: String, idChoice: String, idGroup: String) = gameManager.addEdit(gamecode, idEdit, idChoice, idGroup)
-    fun onGetEdit(gamecode: String, idEdit: String, idGroup: String) = gameManager.getEdit(gamecode, idEdit, idGroup)
     fun onCloseImprevisto() = gameManager.closeImprevisto()
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun onAddActivity(idEdit: String, idChoice: String) = gameManager.addActivity(idEdit, idChoice)
 
     val screenName = gameManager.screenName
-    val gamecode = gameManager.gamecode
-    val edit = gameManager.edit
     val turno = gameManager.turno
     val users = gameManager.users
     val uid = gameManager.uid
-    val groupStats = gameManager.groupStats
+    val group = gameManager.group
+    val activities = gameManager.activities
+    val imprevisti = gameManager.imprevisti
+    val stats = gameManager.stats
 }

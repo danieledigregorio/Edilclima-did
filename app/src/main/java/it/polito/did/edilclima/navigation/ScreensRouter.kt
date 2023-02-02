@@ -1,5 +1,7 @@
 package it.polito.did.edilclima.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import it.polito.did.edilclima.GameViewModel
@@ -10,14 +12,17 @@ import androidx.navigation.compose.rememberNavController
 import it.polito.did.edilclima.navigation.tutorial.NavGraphTutorial
 import it.polito.did.edilclima.screens.ImprevistoScreen
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ScreensRouter() {
     val vm: GameViewModel = viewModel()
-    val edit = vm.edit.observeAsState()
     val turno = vm.turno.observeAsState()
     val users = vm.users.observeAsState()
     val uid = vm.uid.observeAsState()
-    val groupStats = vm.groupStats.observeAsState()
+    val group = vm.group.observeAsState()
+    val activities = vm.activities.observeAsState()
+    val imprevisti = vm.imprevisti.observeAsState()
+    val stats = vm.stats.observeAsState()
 
     when (val screenName = vm.screenName.observeAsState().value) {
         is Screens.Login -> LoginScreen(
@@ -38,17 +43,19 @@ fun ScreensRouter() {
             val navController = rememberNavController()
             NavGraph(
                 navController = navController,
-                edit = edit,
                 gameCode = screenName.gamecode,
                 teamCode = screenName.teamcode,
                 turno = turno,
                 users = users,
                 uid = uid,
-                groupStats = groupStats,
+                group = group,
+                activities = activities,
+                stats = stats,
             )
         }
         is Screens.Imprevisto -> ImprevistoScreen(
-            vm::onCloseImprevisto
+            vm::onCloseImprevisto,
+            imprevisti,
         )
         null -> LoginScreen(vm::onJoinGame)
     }

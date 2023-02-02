@@ -7,6 +7,7 @@ import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,6 +20,7 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
+import it.polito.did.edilclima.GameManager
 import it.polito.did.edilclima.navigation.ScreensGame
 import it.polito.did.edilclima.ui.theme.White1
 import it.polito.did.edilclima.R
@@ -28,9 +30,20 @@ import it.polito.did.edilclima.ui.theme.Transparent
 @Composable
 fun GamePalazzo(
     navController: NavController,
-    teamCode: String
+    teamCode: String,
+    stats: State<GameManager.Stats?>
 ) {
     val composition by rememberLottieComposition(spec = LottieCompositionSpec.Url("https://assets8.lottiefiles.com/packages/lf20_paGW5dv4sm.json"))
+
+
+    val imgclasse = when (stats.value?.classeenergetica) {
+        "a" -> R.drawable.a
+        "b" -> R.drawable.b
+        "c" -> R.drawable.c
+        "d" -> R.drawable.d
+        "e" -> R.drawable.e
+        else -> R.drawable.f
+    }
 
     Box(
         modifier = Modifier
@@ -71,11 +84,11 @@ fun GamePalazzo(
                         modifier = Modifier.size(50.dp)
                     )
                     Text(
-                        text = "29 kg",
+                        text = "${stats.value?.co2} kg",
                         style = Typography.h1
                     )
                     Image(
-                        painter = painterResource(R.drawable.f),
+                        painter = painterResource(imgclasse),
                         contentDescription = "Classe energetica",
                         modifier = Modifier.size(50.dp)
                     )
@@ -93,7 +106,7 @@ fun GamePalazzo(
                         modifier = Modifier.size(50.dp)
                     )
                     Text(
-                        text = "3000,00 €",
+                        text = "${stats.value?.soldi},00 €",
                         style = Typography.h1
                     )
                 }

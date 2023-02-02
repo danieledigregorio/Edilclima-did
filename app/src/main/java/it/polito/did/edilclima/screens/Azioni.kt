@@ -13,7 +13,8 @@ data class Opzione(
     val subtitle: String,
     val co2: Int,
     val price: Int,
-    val quality: Int
+    val quality: Int,
+    val default : Boolean = false,
 )
 
 val azioni = arrayOf(
@@ -30,6 +31,7 @@ val azioni = arrayOf(
                 co2 = 100,
                 price = 5,
                 quality = 20,
+                default = true,
             ),
             Opzione(
                 id = "2",
@@ -53,4 +55,7 @@ val azioni = arrayOf(
 
 fun getAzioneById(id: String): Azione {
     return azioni.single { a -> a.id == id }
+}
+fun getAzioni(): List<Azione> {
+    return azioni.toList()
 }

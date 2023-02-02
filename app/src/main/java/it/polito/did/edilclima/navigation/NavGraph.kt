@@ -17,13 +17,14 @@ import it.polito.did.edilclima.screens.*
 @Composable
 fun NavGraph(
     navController: NavHostController,
-    edit: State<String?>,
     gameCode: String,
     teamCode: String,
     turno: State<GameManager.Turno?>,
     users: State<List<GameManager.User>?>,
     uid: State<String?>,
-    groupStats: State<GameManager.Group?>
+    group: State<GameManager.Group?>,
+    activities: State<List<GameManager.Edit>?>,
+    stats: State<GameManager.Stats?>
 ) {
     val vm: GameViewModel = viewModel()
 
@@ -34,42 +35,43 @@ fun NavGraph(
         composable(route = ScreensGame.GameMain.route){
             GamePalazzo(
                 navController,
-                teamCode
+                teamCode,
+                stats,
             )
         }
         composable(route = ScreensGame.GameHome.route){
             Column() {
-                NavbarRooms(navController, turno, users, uid, groupStats)
+                NavbarRooms(navController, turno, users, uid, group, stats)
                 GameHome(navController)
             }
         }
         composable(route = ScreensGame.GameSoggiorno.route){
             Column() {
-                NavbarRooms(navController, turno, users, uid, groupStats)
+                NavbarRooms(navController, turno, users, uid, group, stats)
                 GameSoggiorno(navController)
             }
         }
         composable(route = ScreensGame.GameBagno.route){
             Column() {
-                NavbarRooms(navController, turno, users, uid, groupStats)
+                NavbarRooms(navController, turno, users, uid, group, stats)
                 GameBagno(navController)
             }
         }
         composable(route = ScreensGame.GameCucina.route){
             Column() {
-                NavbarRooms(navController, turno, users, uid, groupStats)
+                NavbarRooms(navController, turno, users, uid, group, stats)
                 GameCucina(navController)
             }
         }
         composable(route = ScreensGame.GameCamera.route){
             Column() {
-                NavbarRooms(navController, turno, users, uid, groupStats)
+                NavbarRooms(navController, turno, users, uid, group, stats)
                 GameCamera(navController)
             }
         }
         composable(route = ScreensGame.GameBalcone.route){
             Column() {
-                NavbarRooms(navController, turno, users, uid, groupStats)
+                NavbarRooms(navController, turno, users, uid, group, stats)
                 GameBalcone(navController)
             }
         }
@@ -77,7 +79,7 @@ fun NavGraph(
             val id = navController.currentBackStackEntry?.arguments?.getString("id").toString()
             backButton(navController = navController)
             if(id!="null") {
-                GameModifica(gameCode, navController, id, vm::onGetEdit, edit, vm::onAddEdit, teamCode)
+                GameModifica(navController, id, vm::onAddActivity, activities, turno, uid, stats)
             }
         }
     }
