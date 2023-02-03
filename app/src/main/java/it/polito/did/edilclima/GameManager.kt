@@ -139,7 +139,6 @@ class GameManager(private val scope:CoroutineScope) {
                             getUsers()
                             getGroups()
                             listenActivities()
-                            listenTurni()
                             calcStats()
                             mutableScreenName.value = Screens.GroupAssigned(mutableTeamcode.value!!)
                         }
@@ -178,6 +177,7 @@ class GameManager(private val scope:CoroutineScope) {
                     val res: List<Group> = Gson().fromJson(Gson().toJson(data), Array<Group>::class.java).toList()
                     mutableGroups.value = res
                     mutableGroup.value = res.first { it.idGroup == mutableTeamcode.value }
+                    listenTurni()
                 }
             } catch (e: Exception) {
                 // ERR
@@ -320,16 +320,13 @@ class GameManager(private val scope:CoroutineScope) {
         if(mutableActivities.value!=null) {
             val azioni = getAzioni()
             azioni.map { a ->
-                Log.d("gamemanager", "AZIONE ID: ${a.id}")
+
                 // CO2, PRICE
                 val listact = mutableActivities.value!!.filter { it.idEdit==a.id }
-                Log.d("gamemanager", "LIST AZIONI UTENTE: $listact")
                 listact.map { e ->
-                    Log.d("gamemanager", "AZIONE UTENTE: $e")
                     val choice = a.options.first { it.id==e.idChoice }
                     co2 += choice.co2
                     soldi -= choice.price
-                    Log.d("gamemanager", "X: ${choice.price}")
                 }
 
                 // QUALITY
@@ -342,6 +339,7 @@ class GameManager(private val scope:CoroutineScope) {
                     quality += a.options.first { it.default }.quality
                 }
 
+                // CLASSE ENERGETICA
                 classeenergetica =
                     if(co2 in 0..9) "f"
                     else if(co2 in 10..19) "e"

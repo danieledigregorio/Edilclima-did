@@ -1,7 +1,5 @@
 package it.polito.did.edilclima.navigation
 
-import androidx.lifecycle.LiveData
-
 sealed class Screens() {
 
     object Login: Screens()
