@@ -9,6 +9,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
@@ -144,6 +145,7 @@ fun NavbarRooms(
                     tint = White1,
                     modifier = Modifier
                         .size(30.dp)
+                        .alpha(0F),
                 )
             }
             Row( // STATUS BAR

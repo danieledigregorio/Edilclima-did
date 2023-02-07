@@ -71,6 +71,9 @@ class GameManager(private val scope:CoroutineScope) {
     private val mutableClassifica = MutableLiveData<List<ClassificaItem>>()
     val classifica: LiveData<List<ClassificaItem>> = mutableClassifica
 
+    private val mutableError = MutableLiveData<String>()
+    val error: LiveData<String> = mutableError
+
     fun joinGame(gamecode:String, name:String) {
         scope.launch {
             try {
@@ -78,7 +81,7 @@ class GameManager(private val scope:CoroutineScope) {
                 val data = refDB.get().await().value
                 if(data!=null) {
                     val status = refDB.child("status").get().await().value
-                    if(status!=null) {
+                    if(status!=null && status=="created") {
                         firebaseAuth.signInAnonymously().await()
                         val uid = firebaseAuth.uid!!
                         mutableUID.value = uid
@@ -91,13 +94,14 @@ class GameManager(private val scope:CoroutineScope) {
                         listenStartGame(gamecode)
                     }
                     else {
-                        // ERR - La partità è già iniziata
+                        if(status=="game") mutableError.value = "La partita è già iniziata."
+                        else if(status=="finished") mutableError.value = "La partita è terminata."
                     }
                 } else {
-                    // ERR - Nessuna partita trovata con questo codice
+                    mutableError.value = "Partita $gamecode non trovata."
                 }
             } catch (e: Exception) {
-                // ERR
+                mutableError.value = "Si è verificato un errore. Riprova."
             }
         }
     }
@@ -117,11 +121,11 @@ class GameManager(private val scope:CoroutineScope) {
                         }
                     }
                     override fun onCancelled(error: DatabaseError) {
-                        // ERR
+                        mutableError.value = "Si è verificato un errore nel database."
                     }
                 })
             } catch (e: Exception) {
-                // ERR
+                mutableError.value = "Si è verificato un errore."
             }
         }
     }
@@ -145,7 +149,7 @@ class GameManager(private val scope:CoroutineScope) {
                     }
                 }
             } catch (e: Exception) {
-                // ERR
+                mutableError.value = "Si è verificato un errore."
             }
         }
     }
@@ -163,7 +167,7 @@ class GameManager(private val scope:CoroutineScope) {
                     mutableUsers.value = res1
                 }
             } catch (e: Exception) {
-                // ERR
+                mutableError.value = "Si è verificato un errore."
             }
         }
     }
@@ -180,7 +184,7 @@ class GameManager(private val scope:CoroutineScope) {
                     listenTurni()
                 }
             } catch (e: Exception) {
-                // ERR
+                mutableError.value = "Si è verificato un errore."
             }
         }
     }
@@ -202,11 +206,11 @@ class GameManager(private val scope:CoroutineScope) {
                         }
                     }
                     override fun onCancelled(error: DatabaseError) {
-                        // ERR
+                        mutableError.value = "Si è verificato un errore nel database."
                     }
                 })
             } catch (e: Exception) {
-                // ERR
+                mutableError.value = "Si è verificato un errore."
             }
         }
     }
@@ -246,11 +250,11 @@ class GameManager(private val scope:CoroutineScope) {
                         }
                     }
                     override fun onCancelled(error: DatabaseError) {
-                        // ERR
+                        mutableError.value = "Si è verificato un errore nel database."
                     }
                 })
             } catch (e: Exception) {
-                // ERR
+                mutableError.value = "Si è verificato un errore."
             }
         }
     }
@@ -281,7 +285,7 @@ class GameManager(private val scope:CoroutineScope) {
                 )).await()
 
             } catch (e: Exception) {
-                // ERR
+                mutableError.value = "Si è verificato un errore."
             }
         }
     }
@@ -302,11 +306,11 @@ class GameManager(private val scope:CoroutineScope) {
                         }
                     }
                     override fun onCancelled(error: DatabaseError) {
-                        // ERR
+                        mutableError.value = "Si è verificato un errore nel database."
                     }
                 })
             } catch (e: Exception) {
-                // ERR
+                mutableError.value = "Si è verificato un errore."
             }
         }
     }
@@ -379,13 +383,17 @@ class GameManager(private val scope:CoroutineScope) {
                         }
                     }
                     override fun onCancelled(error: DatabaseError) {
-                        // ERR
+                        mutableError.value = "Si è verificato un errore nel database."
                     }
                 })
             } catch (e: Exception) {
-                // ERR
+                mutableError.value = "Si è verificato un errore."
             }
         }
+    }
+
+    fun closeError() {
+        mutableError.value = ""
     }
 
 
