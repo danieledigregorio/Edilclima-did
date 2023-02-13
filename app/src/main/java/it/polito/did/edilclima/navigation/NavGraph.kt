@@ -1,6 +1,7 @@
 package it.polito.did.edilclima.navigation
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
@@ -78,8 +79,11 @@ fun NavGraph(
         composable("${ScreensGame.GameModifica.route}/{id}"){
             val id = navController.currentBackStackEntry?.arguments?.getString("id").toString()
             backButton(navController = navController)
+            Log.d("gamemanager", "ID: $id")
             if(id!="null") {
-                GameModifica(navController, id, vm::onAddActivity, activities, turno, uid, stats)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    GameModifica(navController, id, vm::onAddActivity, activities, turno, uid, stats)
+                }
             }
         }
     }

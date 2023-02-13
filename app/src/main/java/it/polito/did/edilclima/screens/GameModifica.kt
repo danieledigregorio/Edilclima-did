@@ -1,5 +1,7 @@
 package it.polito.did.edilclima.screens
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -24,6 +26,7 @@ import it.polito.did.edilclima.R
 import it.polito.did.edilclima.Typography
 import it.polito.did.edilclima.ui.theme.*
 
+@RequiresApi(Build.VERSION_CODES.S)
 @Composable
 fun GameModifica(
     navController: NavController,
@@ -38,7 +41,10 @@ fun GameModifica(
     val azione = getAzioneById(id)
 
     var edit : GameManager.Edit by remember {
-        mutableStateOf(GameManager.Edit("0", id, azione.options.first { it.default }.id, "0"))
+        mutableStateOf(GameManager.Edit("0", id,
+            if(azione.options.filter { it.default }.isNotEmpty())
+                azione.options.first { it.default }.id else "",
+            "0"))
     }
     if(activities.value!=null) {
         activities.value!!.filter { it.idEdit==id }.map {
@@ -259,7 +265,7 @@ fun GameModifica(
                             )
                             Divider(thickness = 20.dp, color = Transparent)
                             if(turno.value!!.user.id==uid.value) {
-                                if(stats.value!!.soldi.toInt()>=azione.options.first { it.id==selected }.price) {
+                                if(stats.value!!.soldi.toDouble() >= azione.options.first { it.id==selected }.price.toDouble()) {
                                     Button(
                                         onClick = {
                                             onAddActivity(id, selected);

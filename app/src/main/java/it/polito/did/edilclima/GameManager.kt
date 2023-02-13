@@ -1,8 +1,12 @@
 package it.polito.did.edilclima
 
+import android.content.Context
 import android.os.Build
+import android.os.*
+import android.os.VibratorManager
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.auth.ktx.auth
@@ -20,11 +24,14 @@ import kotlinx.coroutines.tasks.await
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
+import androidx.core.content.ContextCompat.getSystemService
 
 
+@RequiresApi(Build.VERSION_CODES.S)
 class GameManager(private val scope:CoroutineScope) {
     private val firebaseDB = Firebase.database("https://edilclima-did.firebaseio.com/")
     private val firebaseAuth = Firebase.auth
+
 
 
     private val mutableScreenName = MutableLiveData<Screens>().also {
@@ -340,6 +347,7 @@ class GameManager(private val scope:CoroutineScope) {
                     val idChoice = listact.first { it.date==lastdate }.idChoice
                     quality += a.options.first { it.id==idChoice }.quality
                 } else {
+                    if(a.options.filter { it.default }.isNotEmpty())
                     quality += a.options.first { it.default }.quality
                 }
 
@@ -395,6 +403,7 @@ class GameManager(private val scope:CoroutineScope) {
     fun closeError() {
         mutableError.value = ""
     }
+
 
 
 

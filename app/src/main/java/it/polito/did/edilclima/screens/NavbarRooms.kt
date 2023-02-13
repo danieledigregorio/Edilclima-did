@@ -254,6 +254,7 @@ fun NavbarRooms(
                     navController = navController,
                     route = ScreensGame.GameCamera.route,
                 )
+                /*
                 itemMenu(
                     Modifier.padding(0.dp, 0.dp, 25.dp, 0.dp),
                     icon = painterResource(R.drawable.icon_balcone),
@@ -261,6 +262,7 @@ fun NavbarRooms(
                     navController = navController,
                     route = ScreensGame.GameBalcone.route,
                 )
+                 */
             }
             Divider(
                 Modifier.height(20.dp),

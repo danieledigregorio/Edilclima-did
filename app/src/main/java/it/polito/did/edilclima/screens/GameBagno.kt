@@ -52,35 +52,9 @@ fun GameBagno(navController: NavController) {
             ) {
                 itemModifica(
                     modifier = Modifier.padding(20.dp, 0.dp, 0.dp, 0.dp),
-                    title = "Pulizia pavimento",
-                    subtitle = "Lorem ipsum dolor sita met sed uliquat",
-                    icon = painterResource(R.drawable.icon_bagno),
+                    icon = painterResource(R.drawable.icon_lavaggio),
                     navController = navController,
-                    idedit = "0001",
-                )
-                itemModifica(
-                    modifier = Modifier,
-                    title = "Lampadine LED",
-                    subtitle = "Lorem ipsum dolor sita met sed uliquat",
-                    icon = painterResource(R.drawable.icon_bagno),
-                    navController = navController,
-                    idedit = "edit 2",
-                )
-                itemModifica(
-                    modifier = Modifier,
-                    title = "Lampadine LED",
-                    subtitle = "Lorem ipsum dolor sita met sed uliquat",
-                    icon = painterResource(R.drawable.icon_bagno),
-                    navController = navController,
-                    idedit = "edit 3",
-                )
-                itemModifica(
-                    modifier = Modifier.padding(0.dp, 0.dp, 20.dp, 0.dp),
-                    title = "Lampadine LED",
-                    subtitle = "Lorem ipsum dolor sita met sed uliquat",
-                    icon = painterResource(R.drawable.icon_bagno),
-                    navController = navController,
-                    idedit = "edit 4",
+                    idedit = "0005",
                 )
             }
         }

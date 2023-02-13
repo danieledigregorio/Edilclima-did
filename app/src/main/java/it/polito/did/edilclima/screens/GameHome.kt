@@ -52,35 +52,21 @@ fun GameHome(navController: NavController) {
             ) {
                 itemModifica(
                     modifier = Modifier.padding(20.dp, 0.dp, 0.dp, 0.dp),
-                    title = "Pulizia pavimento",
-                    subtitle = "Lorem ipsum dolor sita met sed uliquat",
-                    icon = painterResource(R.drawable.icon_bagno),
+                    icon = painterResource(R.drawable.icon_infissi),
                     navController = navController,
-                    idedit = "0001",
+                    idedit = "0013",
                 )
                 itemModifica(
                     modifier = Modifier,
-                    title = "Lampadine LED",
-                    subtitle = "Lorem ipsum dolor sita met sed uliquat",
-                    icon = painterResource(R.drawable.icon_bagno),
+                    icon = painterResource(R.drawable.icon_ventilatore),
                     navController = navController,
-                    idedit = "edit 2",
-                )
-                itemModifica(
-                    modifier = Modifier,
-                    title = "Lampadine LED",
-                    subtitle = "Lorem ipsum dolor sita met sed uliquat",
-                    icon = painterResource(R.drawable.icon_bagno),
-                    navController = navController,
-                    idedit = "edit 3",
+                    idedit = "0014",
                 )
                 itemModifica(
                     modifier = Modifier.padding(0.dp, 0.dp, 20.dp, 0.dp),
-                    title = "Lampadine LED",
-                    subtitle = "Lorem ipsum dolor sita met sed uliquat",
-                    icon = painterResource(R.drawable.icon_bagno),
+                    icon = painterResource(R.drawable.icon_riscaldamento),
                     navController = navController,
-                    idedit = "edit 4",
+                    idedit = "0015",
                 )
             }
         }
@@ -90,12 +76,13 @@ fun GameHome(navController: NavController) {
 @Composable
 fun itemModifica(
     modifier: Modifier,
-    title: String,
-    subtitle: String,
     icon: Painter,
     navController: NavController,
     idedit: String,
 ) {
+
+    val azione = getAzioneById(idedit)
+
     Box(
         modifier = modifier
     ) {
@@ -134,11 +121,11 @@ fun itemModifica(
                 }
                 Column() {
                     Text(
-                        text = title,
+                        text = azione.title,
                         style = Typography.h2,
                     )
                     Text(
-                        text = subtitle,
+                        text = azione.subtitle,
                         style = Typography.body2,
                     )
                 }

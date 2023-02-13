@@ -1,6 +1,10 @@
 package it.polito.did.edilclima.screens
 
+import android.content.Context
 import android.os.Build
+import android.os.CombinedVibration
+import android.os.VibrationEffect
+import android.os.VibratorManager
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -9,6 +13,7 @@ import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -32,6 +37,14 @@ fun ImprevistoScreen(
     imprevisti.value!!.map { if(LocalDateTime.parse(it.date, formatter).isAfter(LocalDateTime.parse(lastdate, formatter))) lastdate=it.date }
     val lastimprevisto: GameManager.Imprevisto = imprevisti.value!!.first { it.date == lastdate }
     val dataimprevisto: ImprevistoItem = getImprevistoById(lastimprevisto.id)
+
+    val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        LocalContext.current.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+    } else {
+        TODO("VERSION.SDK_INT < S")
+    }
+    vibrator.cancel()
+    vibrator.vibrate(CombinedVibration.createParallel(VibrationEffect.createOneShot(250, VibrationEffect.DEFAULT_AMPLITUDE)))
 
     Box(
         modifier = Modifier

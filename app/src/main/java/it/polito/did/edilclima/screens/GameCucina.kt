@@ -52,35 +52,27 @@ fun GameCucina(navController: NavController) {
             ) {
                 itemModifica(
                     modifier = Modifier.padding(20.dp, 0.dp, 0.dp, 0.dp),
-                    title = "Pulizia pavimento",
-                    subtitle = "Lorem ipsum dolor sita met sed uliquat",
-                    icon = painterResource(R.drawable.icon_bagno),
+                    icon = painterResource(R.drawable.icon_pianocottura),
                     navController = navController,
-                    idedit = "0001",
+                    idedit = "0006",
                 )
                 itemModifica(
                     modifier = Modifier,
-                    title = "Lampadine LED",
-                    subtitle = "Lorem ipsum dolor sita met sed uliquat",
-                    icon = painterResource(R.drawable.icon_bagno),
+                    icon = painterResource(R.drawable.icon_stoviglie),
                     navController = navController,
-                    idedit = "edit 2",
+                    idedit = "0007",
                 )
                 itemModifica(
                     modifier = Modifier,
-                    title = "Lampadine LED",
-                    subtitle = "Lorem ipsum dolor sita met sed uliquat",
-                    icon = painterResource(R.drawable.icon_bagno),
+                    icon = painterResource(R.drawable.icon_forno),
                     navController = navController,
-                    idedit = "edit 3",
+                    idedit = "0008",
                 )
                 itemModifica(
                     modifier = Modifier.padding(0.dp, 0.dp, 20.dp, 0.dp),
-                    title = "Lampadine LED",
-                    subtitle = "Lorem ipsum dolor sita met sed uliquat",
-                    icon = painterResource(R.drawable.icon_bagno),
+                    icon = painterResource(R.drawable.icon_frigo),
                     navController = navController,
-                    idedit = "edit 4",
+                    idedit = "0009",
                 )
             }
         }
