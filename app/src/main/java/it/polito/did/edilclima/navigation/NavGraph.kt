@@ -10,8 +10,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import it.polito.did.edilclima.GameManager
 import it.polito.did.edilclima.GameViewModel
+import it.polito.did.edilclima.navigation.tutorial.NavGraphTutorial
+import it.polito.did.edilclima.navigation.tutorial.ScreensTutorial
 import it.polito.did.edilclima.screens.*
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -81,10 +84,23 @@ fun NavGraph(
             backButton(navController = navController)
             Log.d("gamemanager", "ID: $id")
             if(id!="null") {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    GameModifica(navController, id, vm::onAddActivity, activities, turno, uid, stats)
-                }
+                GameModifica(navController, id, vm::onAddActivity, activities, turno, uid, stats)
             }
+        }
+        composable(route = ScreensGame.GameSettings.route){
+            SettingsScreen(
+                navController,
+                users,
+                uid,
+            )
+        }
+        composable(route = ScreensGame.GameTutorial.route){
+            val navController1 = rememberNavController()
+            NavGraphTutorial(
+                navController = navController1,
+                onStartGame = { navController.navigate(ScreensGame.GameHome.route) },
+                teamCode = teamCode,
+            )
         }
     }
 }

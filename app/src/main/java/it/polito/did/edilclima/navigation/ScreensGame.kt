@@ -9,4 +9,6 @@ sealed class ScreensGame(val route: String) {
     object GameCamera: ScreensGame("game-camera")
     object GameBalcone: ScreensGame("game-balcone")
     object GameModifica: ScreensGame("game-modifica")
+    object GameSettings: ScreensGame("game-settings")
+    object GameTutorial: ScreensGame("game-tutorial")
 }

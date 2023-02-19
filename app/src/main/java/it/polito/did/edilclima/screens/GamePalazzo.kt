@@ -78,14 +78,21 @@ fun GamePalazzo(
                         .fillMaxWidth()
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.meter_svgrepo_com),
-                        contentDescription = "Icona Speedometer",
+                        painter = painterResource(R.drawable.icon_leaf),
+                        contentDescription = "Icona Leaf",
                         tint = White1,
                         modifier = Modifier.size(50.dp)
                     )
+
                     Text(
                         text = "${stats.value?.co2} kg",
                         style = Typography.h1
+                    )
+                    Icon(
+                        painter = painterResource(R.drawable.icon_co2),
+                        contentDescription = "Icona CO2",
+                        tint = White1,
+                        modifier = Modifier.size(50.dp)
                     )
                     Image(
                         painter = painterResource(imgclasse),

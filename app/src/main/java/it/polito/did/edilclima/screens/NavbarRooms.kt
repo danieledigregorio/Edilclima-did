@@ -140,12 +140,12 @@ fun NavbarRooms(
                     }
                 }
                 Icon(
-                    painter = painterResource(R.drawable.icon_info),
-                    contentDescription = "Icona Info",
+                    painter = painterResource(R.drawable.icon_settings),
+                    contentDescription = "Icona Settings",
                     tint = White1,
                     modifier = Modifier
                         .size(30.dp)
-                        .alpha(0F),
+                        .clickable { navController.navigate(ScreensGame.GameSettings.route) },
                 )
             }
             Row( // STATUS BAR
@@ -159,8 +159,8 @@ fun NavbarRooms(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.meter_svgrepo_com),
-                        contentDescription = "Icona Speedometer",
+                        painter = painterResource(R.drawable.icon_leaf),
+                        contentDescription = "Icona Leaf",
                         tint = White1,
                         modifier = Modifier.size(20.dp)
                     )
@@ -171,6 +171,16 @@ fun NavbarRooms(
                     Text(
                         text = "${stats.value?.co2} kg",
                         style = Typography.body2
+                    )
+                    Divider(
+                        Modifier.width(10.dp),
+                        color = Transparent
+                    )
+                    Icon(
+                        painter = painterResource(R.drawable.icon_co2),
+                        contentDescription = "Icona CO2",
+                        tint = White1,
+                        modifier = Modifier.size(20.dp)
                     )
                     Divider(
                         Modifier.width(10.dp),
@@ -248,7 +258,7 @@ fun NavbarRooms(
                     route = ScreensGame.GameCucina.route,
                 )
                 itemMenu(
-                    Modifier,
+                    Modifier.padding(0.dp, 0.dp, 25.dp, 0.dp),
                     icon = painterResource(R.drawable.icon_camera),
                     title = "Camera da letto",
                     navController = navController,

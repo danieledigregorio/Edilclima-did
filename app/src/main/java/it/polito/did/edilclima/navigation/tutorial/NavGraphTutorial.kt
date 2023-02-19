@@ -51,15 +51,16 @@ fun NavGraphTutorial(
                         Modifier.height(20.dp),
                         color = Transparent
                     )
-                    Button(onClick = { navController.navigate(ScreensTutorial.Tutorial2.route) }) {
+                    Button(onClick = { onStartGame() }) {
                         Text(
-                            text = "Avanti",
+                            text = "Inizia il gioco",
                             color = Black,
                         )
                     }
                 }
             }
         }
+        /*
         composable(route = ScreensTutorial.Tutorial2.route) {
             Box(
                 modifier = Modifier
@@ -162,5 +163,6 @@ fun NavGraphTutorial(
                 }
             }
         }
+         */
     }
 }

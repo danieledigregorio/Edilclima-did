@@ -79,13 +79,6 @@ fun GameModifica(
                     modifier = Modifier
                         .fillMaxWidth()
                 )
-                Text(
-                    text = azione.subtitle,
-                    style = Typography.body1,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                )
                 Divider(
                     modifier = Modifier.height(40.dp),
                     color = Transparent,
@@ -155,7 +148,7 @@ fun GameModifica(
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically,) {
                             Icon(
-                                painter = painterResource(R.drawable.meter_svgrepo_com),
+                                painter = painterResource(R.drawable.icon_leaf),
                                 contentDescription = null,
                                 modifier = Modifier.size(20.dp)
                             )
@@ -164,6 +157,15 @@ fun GameModifica(
                                 color = Color.Transparent
                             )
                             Text(text = "${a.co2} kg")
+                            Divider(
+                                modifier = Modifier.width(10.dp),
+                                color = Color.Transparent
+                            )
+                            Icon(
+                                painter = painterResource(R.drawable.icon_co2),
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp)
+                            )
                         }
                         Divider(
                             modifier = Modifier.width(20.dp),
@@ -250,7 +252,6 @@ fun GameModifica(
                     Card(
                         modifier = Modifier
                             .fillMaxWidth(0.9F)
-                            .fillMaxHeight(0.5F)
                             .clickable { popupControl = true },
                         shape = RoundedCornerShape(20.dp),
                         backgroundColor = White1
@@ -258,10 +259,15 @@ fun GameModifica(
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.SpaceEvenly,
+                            modifier = Modifier
+                                .padding(20.dp)
                         ) {
                             Text(
-                                text = "SICUROOO????",
+                                text = azione.options.first { it.id===selected }.description,
                                 color = Black,
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                textAlign = TextAlign.Center,
                             )
                             Divider(thickness = 20.dp, color = Transparent)
                             if(turno.value!!.user.id==uid.value) {

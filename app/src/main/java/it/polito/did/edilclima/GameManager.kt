@@ -1,5 +1,6 @@
 package it.polito.did.edilclima
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.*
@@ -25,11 +26,13 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 import androidx.core.content.ContextCompat.getSystemService
+import it.polito.did.edilclima.screens.getImprevisti
+import it.polito.did.edilclima.screens.getImprevistoById
 
 
 @RequiresApi(Build.VERSION_CODES.S)
 class GameManager(private val scope:CoroutineScope) {
-    private val firebaseDB = Firebase.database("https://edilclima-did.firebaseio.com/")
+    private val firebaseDB = Firebase.database("https://edilclima-did-default-rtdb.europe-west1.firebasedatabase.app")
     private val firebaseAuth = Firebase.auth
 
 
@@ -250,10 +253,12 @@ class GameManager(private val scope:CoroutineScope) {
                 refDB.addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         if(snapshot.value!=null) {
+                            Log.d("gamemanager", snapshot.value.toString())
                             val itemtype = object : TypeToken<List<Imprevisto>>(){}.type
                             val res = Gson().fromJson<List<Imprevisto>>(Gson().toJson(snapshot.value), itemtype)
                             mutableImprevisti.value = res
                             mutableScreenName.value = Screens.Imprevisto()
+                            calcStats()
                         }
                     }
                     override fun onCancelled(error: DatabaseError) {
@@ -268,6 +273,7 @@ class GameManager(private val scope:CoroutineScope) {
 
     fun closeImprevisto() {
         mutableScreenName.value = Screens.Home(gamecode.value!!, teamcode.value!!)
+        calcStats()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -324,11 +330,12 @@ class GameManager(private val scope:CoroutineScope) {
 
     fun calcStats() {
         var co2: Int = 0
-        var soldi: Int = 3000
+        var soldi: Int = 10000
         var quality: Int = 0
         var classeenergetica: String = "f"
 
         if(mutableActivities.value!=null) {
+            Log.d("gamemanager", "ACTIVITIES")
             val azioni = getAzioni()
             azioni.map { a ->
 
@@ -347,23 +354,39 @@ class GameManager(private val scope:CoroutineScope) {
                     val idChoice = listact.first { it.date==lastdate }.idChoice
                     quality += a.options.first { it.id==idChoice }.quality
                 } else {
-                    if(a.options.filter { it.default }.isNotEmpty())
-                    quality += a.options.first { it.default }.quality
+                    if(a.options.filter { it.default }.isNotEmpty()) {
+                        quality += a.options.first { it.default }.quality
+                    }
                 }
+            }
 
-                // CLASSE ENERGETICA
-                classeenergetica =
-                    if(co2 in 0..9) "f"
-                    else if(co2 in 10..19) "e"
-                    else if(co2 in 20..29) "d"
-                    else if(co2 in 30..39) "c"
-                    else if(co2 in 40..49) "b"
-                    else if(co2 > 50) "a"
-                    else "f"
+        // Log.d("gamemanager", "B: $co2 $soldi $quality $classeenergetica")
+        }
 
-                Log.d("gamemanager", "B: $co2 $soldi $quality $classeenergetica")
+
+        Log.d("gamemanager", "quasi IMPREVISTI")
+        if(mutableImprevisti.value!=null) {
+            // IMPREVISTI (CO2, PRICE)
+            Log.d("gamemanager", "IMPREVISTI")
+            mutableImprevisti.value!!.map { a ->
+                Log.d("gamemanager", "IMPREVISTI dentro")
+                val dataimp = getImprevistoById(a.id)
+                Log.d("gamemanager", "$dataimp")
+                co2 += dataimp.co2
+                soldi -= dataimp.price
             }
         }
+
+
+        // CLASSE ENERGETICA
+        classeenergetica =
+            if(co2 in 0..1016) "f"
+            else if(co2 in 1016..1567) "e"
+            else if(co2 in 1567..2118) "d"
+            else if(co2 in 2118..2699) "c"
+            else if(co2 in 2699..3220) "b"
+            else if(co2 > 3220) "a"
+            else "f"
 
         mutableStats.value = Stats(
             co2 = co2,
@@ -405,8 +428,6 @@ class GameManager(private val scope:CoroutineScope) {
     }
 
 
-
-
     data class Edit(var idGroup: String, var idEdit: String, var idChoice: String, var date: String) {}
     data class Group(var idGroup: String, var users: List<String>) {}
     data class Imprevisto(var id: String, var date: String) {}
@@ -414,5 +435,5 @@ class GameManager(private val scope:CoroutineScope) {
     data class TurnoDB(var idGroup: String, var date: String) {}
     data class User(var id: String, var name: String) {}
     data class Stats(var co2: Number, var soldi: Number, var quality: Number, var classeenergetica: String)
-    data class ClassificaItem(var position: String, var idGroup: String)
+    data class ClassificaItem(var points: Number, var idGroup: String)
 }

@@ -23,8 +23,7 @@ fun Classifica(
     classifica: State<List<GameManager.ClassificaItem>?>,
     groupId: String,
 ) {
-
-    val position = classifica.value!!.first { it.idGroup==groupId }.position
+    val position = (classifica.value!!.indexOf(classifica.value!!.first { it.idGroup==groupId })+1).toString()
     val image = when (position) {
         "1" -> R.drawable.first
         "2" -> R.drawable.second
@@ -33,15 +32,15 @@ fun Classifica(
     }
     val str1 = when (position) {
         "1" -> "Complimenti!"
-        "2" -> "Ci sei andato vicino!"
+        "2" -> "Ci siete andati vicini!"
         "3" -> "Non male!"
         else -> "Peccato!"
     }
     val str2 = when (position) {
-        "1" -> "Ti sei classificato primo!"
-        "2" -> "Ti sei classificato secondo!"
-        "3" -> "Ti sei classificato terzo!"
-        else -> "Ti sei classificato quarto!"
+        "1" -> "La tua squadra si è classificata prima!"
+        "2" -> "La tua squadra si è classificata seconda!"
+        "3" -> "La tua squadra si è classificata terza!"
+        else -> "La tua squadra si è classificata quarta!"
     }
 
     Box(

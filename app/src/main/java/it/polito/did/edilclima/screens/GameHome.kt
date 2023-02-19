@@ -124,10 +124,6 @@ fun itemModifica(
                         text = azione.title,
                         style = Typography.h2,
                     )
-                    Text(
-                        text = azione.subtitle,
-                        style = Typography.body2,
-                    )
                 }
             }
         }

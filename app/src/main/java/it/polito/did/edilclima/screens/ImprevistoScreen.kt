@@ -38,14 +38,6 @@ fun ImprevistoScreen(
     val lastimprevisto: GameManager.Imprevisto = imprevisti.value!!.first { it.date == lastdate }
     val dataimprevisto: ImprevistoItem = getImprevistoById(lastimprevisto.id)
 
-    val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        LocalContext.current.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
-    } else {
-        TODO("VERSION.SDK_INT < S")
-    }
-    vibrator.cancel()
-    vibrator.vibrate(CombinedVibration.createParallel(VibrationEffect.createOneShot(250, VibrationEffect.DEFAULT_AMPLITUDE)))
-
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -78,6 +70,17 @@ fun ImprevistoScreen(
                 )
                 Divider(
                     thickness = 20.dp,
+                    color = Color.Transparent,
+                )
+                Text(
+                    text = dataimprevisto.title,
+                    style = Typography.h2,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                )
+                Divider(
+                    thickness = 10.dp,
                     color = Color.Transparent,
                 )
                 Text(
