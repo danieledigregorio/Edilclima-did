@@ -115,3 +115,6 @@ fun getImprevistoById(id: String): ImprevistoItem {
 fun getImprevisti(): List<ImprevistoItem> {
     return imprevisti.toList()
 }
+fun isRealImprevisto(id: String): Boolean {
+    return imprevisti.any { it.id == id }
+}

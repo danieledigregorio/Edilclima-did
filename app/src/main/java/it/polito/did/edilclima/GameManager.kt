@@ -28,6 +28,7 @@ import java.util.*
 import androidx.core.content.ContextCompat.getSystemService
 import it.polito.did.edilclima.screens.getImprevisti
 import it.polito.did.edilclima.screens.getImprevistoById
+import it.polito.did.edilclima.screens.isRealImprevisto
 
 
 @RequiresApi(Build.VERSION_CODES.S)
@@ -257,8 +258,10 @@ class GameManager(private val scope:CoroutineScope) {
                             val itemtype = object : TypeToken<List<Imprevisto>>(){}.type
                             val res = Gson().fromJson<List<Imprevisto>>(Gson().toJson(snapshot.value), itemtype)
                             mutableImprevisti.value = res
-                            mutableScreenName.value = Screens.Imprevisto()
-                            calcStats()
+                            if(isRealImprevisto(res.last().id)) {
+                                mutableScreenName.value = Screens.Imprevisto()
+                                calcStats()
+                            }
                         }
                     }
                     override fun onCancelled(error: DatabaseError) {
@@ -364,16 +367,18 @@ class GameManager(private val scope:CoroutineScope) {
         }
 
 
-        Log.d("gamemanager", "quasi IMPREVISTI")
+        //Log.d("gamemanager", "quasi IMPREVISTI")
         if(mutableImprevisti.value!=null) {
             // IMPREVISTI (CO2, PRICE)
-            Log.d("gamemanager", "IMPREVISTI")
+            //Log.d("gamemanager", "IMPREVISTI")
             mutableImprevisti.value!!.map { a ->
-                Log.d("gamemanager", "IMPREVISTI dentro")
-                val dataimp = getImprevistoById(a.id)
-                Log.d("gamemanager", "$dataimp")
-                co2 += dataimp.co2
-                soldi -= dataimp.price
+                if(isRealImprevisto(a.id)) {
+                    //Log.d("gamemanager", "IMPREVISTI dentro")
+                    val dataimp = getImprevistoById(a.id)
+                    //Log.d("gamemanager", "$dataimp")
+                    co2 += dataimp.co2
+                    soldi -= dataimp.price
+                }
             }
         }
 
